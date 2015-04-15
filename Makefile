@@ -131,6 +131,7 @@ lsl_RUNSTEP =     ../lsl/run.py $(MAL_LSL_URL) $(2) $(3)
 
 # Extra options to pass to runtest.py
 mal_TEST_OPTS = --start-timeout 60 --test-timeout 120
+lsl_TEST_OPTS = --test-timeout 120
 
 
 # Derived lists
