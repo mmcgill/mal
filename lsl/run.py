@@ -5,6 +5,7 @@ import httplib
 import urlparse
 import json
 import time
+import signal
 
 base_url = urlparse.urlparse(sys.argv[1])
 base_path = base_url.path
@@ -47,11 +48,21 @@ def get_repl(repl):
     try:
         conn.request("GET",base_path+"/"+repl["id"])
         resp = conn.getresponse()
-        return {'status': resp.status, 'result': resp.read()}
+        if 200 == resp.status:
+            return json.loads(resp.read())
+        else:
+            return None
     finally:
         conn.close()
 
+class Terminated(Exception):
+    pass
+
+def sigterm_handler(x,y):
+    raise Terminated()
+
 repl = create_repl()
+signal.signal(signal.SIGTERM,sigterm_handler)
 
 try:
     sys.stdout.write("user> ")
@@ -64,10 +75,12 @@ try:
             while resp['state'] == 'evaluating':
                 time.sleep(1)
                 resp = get_repl(repl)
-        sys.stdout.write(resp['result']+"\n")
+        sys.stdout.write(str(resp['result'])+"\n")
         sys.stdout.write("user> ")
         cmd = sys.stdin.readline()
 except KeyboardInterrupt:
     None
+except Terminated:
+    print "Terminated"
 finally:
     delete_repl(repl)
