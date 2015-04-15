@@ -127,7 +127,7 @@ swift_RUNSTEP =   ../$(2) $(3)
 vb_RUNSTEP =      mono ../$(2) --raw $(3)
 # needs TERM=dumb to work with readline
 guile_RUNSTEP =   guile -L ../guile ../$(2) $(3)
-lsl_RUNSTEP =     ../lsl/run.py $(MAL_LSL_URL) $(2) $(3)
+lsl_RUNSTEP =     ../lsl/run.py $(MAL_LSL_URL) $(1)
 
 # Extra options to pass to runtest.py
 mal_TEST_OPTS = --start-timeout 60 --test-timeout 120

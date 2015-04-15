@@ -8,17 +8,18 @@ import time
 import signal
 
 base_url = urlparse.urlparse(sys.argv[1])
+step = sys.argv[2]
 base_path = base_url.path
 
-def create_repl():
+def create_repl(step):
     conn = httplib.HTTPConnection(base_url.netloc)
     try:
         print base_path
-        conn.request("POST", base_path)
+        conn.request("POST", base_path, step)
         resp = conn.getresponse()
 
         if resp.status != 200:
-            raise "Failed: "+resp.reason
+            raise Exception("Failed: "+resp.reason)
 
         repl = json.loads(resp.read())
         print repl
@@ -61,7 +62,7 @@ class Terminated(Exception):
 def sigterm_handler(x,y):
     raise Terminated()
 
-repl = create_repl()
+repl = create_repl(step)
 signal.signal(signal.SIGTERM,sigterm_handler)
 
 try:
@@ -69,6 +70,7 @@ try:
     cmd = sys.stdin.readline()
 
     while cmd != None:
+        cmd = cmd.rstrip()
         resp = send_repl(repl,cmd)
         if resp['status'] == 204:
             resp = get_repl(repl)
