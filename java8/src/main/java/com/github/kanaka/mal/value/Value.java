@@ -16,6 +16,18 @@ public abstract class Value {
 		throw new MalTypeException("Cannot cast "+this.toString()+" to fn");
 	}
 	
+	public SymbolValue castToSymbol() {
+		throw new MalTypeException("Cannot cast "+this.toString()+" to symbol");
+	}
+	
+	public ListValue castToList() {
+		throw new MalTypeException("Cannot cast "+this.toString()+" to list");
+	}
+	
+	public ValueSequence castToValueSequence() {
+		throw new MalTypeException("Cannot cast "+this.toString()+" to value sequence");
+	}
+	
 	public Value eval(Environment env) {
 		return evalAst(env);
 	}

@@ -2,13 +2,13 @@ package com.github.kanaka.mal.value;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.kanaka.mal.Environment;
+import com.github.kanaka.mal.Special;
 
-public class ListValue extends Value {
-	private final List<Value> values; 
+public class ListValue extends Value implements ValueSequence {
+	private final LinkedList<Value> values;
 
 	ListValue(Iterator<Value> iter) {
 		values = new LinkedList<>();
@@ -22,14 +22,35 @@ public class ListValue extends Value {
 	}
 	
 	@Override
+	public Iterator<Value> iterator() {
+		return values.iterator();
+	}
+	
+	@Override
+	public ListValue castToList() {
+		return this;
+	}
+	
+	@Override
+	public ValueSequence castToValueSequence() {
+		return this;
+	}
+	
+	@Override
 	public Value eval(Environment env) {
 		if (values.isEmpty()) {
 			return this;
 		} else  {
-			ListValue l = evalAst(env);
-			FuncValue f = l.values.get(0).castToFn();
-			Value[] args = l.values.stream().skip(1).toArray((n) -> new Value[n]);
-			return f.apply(args);
+			Value first = values.get(0);
+			Special special = (first instanceof SymbolValue) ? Special.get((SymbolValue)first) : null;
+			if (special != null) {
+				return special.apply(env, values.stream().skip(1).toArray((n) -> new Value[n]));
+			} else {
+				ListValue l = evalAst(env);
+				FuncValue f = l.values.get(0).castToFn();
+				Value[] args = l.values.stream().skip(1).toArray((n) -> new Value[n]);
+				return f.apply(args);
+			}
 		}
 	}
 	

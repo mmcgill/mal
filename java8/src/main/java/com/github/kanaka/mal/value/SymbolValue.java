@@ -10,6 +10,11 @@ public class SymbolValue extends Value {
 	}
 	
 	@Override
+	public SymbolValue castToSymbol() {
+		return this;
+	}
+	
+	@Override
 	public Value evalAst(Environment env) {
 		return env.get(this);
 	}

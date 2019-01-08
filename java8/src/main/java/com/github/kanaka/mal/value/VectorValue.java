@@ -1,12 +1,13 @@
 package com.github.kanaka.mal.value;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.kanaka.mal.Environment;
 
-public class VectorValue extends Value {
+public class VectorValue extends Value implements ValueSequence {
 	private final Value[] values;
 	
 	private VectorValue(Value[] values, boolean copy) {
@@ -23,6 +24,16 @@ public class VectorValue extends Value {
 	
 	VectorValue(List<Value> values) {
 		this(values.toArray(new Value[values.size()]), false);
+	}
+	
+	@Override
+	public Iterator<Value> iterator() {
+		return Arrays.asList(values).iterator();
+	}
+	
+	@Override
+	public ValueSequence castToValueSequence() {
+		return this;
 	}
 	
 	@Override
