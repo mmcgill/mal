@@ -73,13 +73,13 @@ public class MapValue extends Value {
 	}
 	
 	@Override
-	public String toString() {
+	public String prStr(boolean printReadably) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('{');
 		sb.append(
 				values.entrySet().stream()
 				.flatMap((e) -> Stream.of(e.getKey(), e.getValue()))
-				.map(Value::toString)
+				.map((v) -> v.prStr(printReadably))
 				.collect(Collectors.joining(" ")));
 		sb.append('}');
 		return sb.toString();

@@ -6,10 +6,10 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.github.kanaka.mal.Core;
 import com.github.kanaka.mal.Environment;
 import com.github.kanaka.mal.MalException;
 import com.github.kanaka.mal.Reader;
-import com.github.kanaka.mal.value.IntValue;
 import com.github.kanaka.mal.value.Value;
 
 import static com.github.kanaka.mal.value.Value.*;
@@ -36,53 +36,15 @@ public class step3_env {
 		}
 		return results;
 	}
-	
-	private static IntValue add(Value[] inputs) {
-		IntValue result = integer(0);
-		for (Value v : inputs) {
-			result = result.add(v.castToInt());
-		}
-		return result;
-	}
-	
-	private static IntValue subtract(Value[] inputs) {
-		if (inputs.length == 0) {
-			throw new MalException("function requires at least 1 argument");
-		} else {
-			IntValue result = inputs[0].castToInt();
-			for (int i=1; i < inputs.length; ++i)
-				result = result.subtract(inputs[i].castToInt());
-			return result;
-		}
-	}
-	
-	private static IntValue multiply(Value[] inputs) {
-		IntValue result = integer(1);
-		for (Value v : inputs) {
-			result = result.multiply(v.castToInt());
-		}
-		return result;
-	}
-	
-	private static IntValue divide(Value[] inputs) {
-		if (inputs.length == 0) {
-			throw new MalException("function requires at least 1 argument");
-		} else {
-			IntValue result = inputs[0].castToInt();
-			for (int i=1; i < inputs.length; ++i)
-				result = result.divide(inputs[i].castToInt());
-			return result;
-		}
-	}
 
 	public static void main(String[] args) {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		try {
 			Environment repl_env = new Environment();
-			repl_env.set(symbol("+"), fn(step3_env::add));
-			repl_env.set(symbol("-"), fn(step3_env::subtract));
-			repl_env.set(symbol("*"), fn(step3_env::multiply));
-			repl_env.set(symbol("/"), fn(step3_env::divide));
+			repl_env.set(symbol("+"), fn(Core::add));
+			repl_env.set(symbol("-"), fn(Core::subtract));
+			repl_env.set(symbol("*"), fn(Core::multiply));
+			repl_env.set(symbol("/"), fn(Core::divide));
 			while (true) {
 				System.out.print("user> ");
 				System.out.flush();

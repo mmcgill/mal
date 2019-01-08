@@ -21,8 +21,9 @@ public class BoolValue extends Value {
 			return true;
 		return false;
 	}
+
 	@Override
-	public String toString() {
+	public String prStr(boolean printReadably) {
 		return Boolean.toString(value);
 	}
 }

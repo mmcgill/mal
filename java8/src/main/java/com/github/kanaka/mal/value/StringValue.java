@@ -2,7 +2,7 @@ package com.github.kanaka.mal.value;
 
 public class StringValue extends Value {
 
-	private final String value;
+	public final String value;
 
 	StringValue(String v) {
 		this.value = v;
@@ -34,7 +34,7 @@ public class StringValue extends Value {
 	}
 	
 	@Override
-	public String toString() {
-		return "\""+Value.escape(value)+"\"";
+	public String prStr(boolean printReadably) {
+		return (printReadably ? "\""+Value.escape(value)+"\"" : value);
 	}
 }

@@ -12,21 +12,15 @@ import com.github.kanaka.mal.MalException;
 import com.github.kanaka.mal.Reader;
 import com.github.kanaka.mal.value.Value;
 
-import static com.github.kanaka.mal.value.Value.*;
+public class step4_if_fn_do {
 
-public class step2_eval {
-
-	static String print(Value input) {
-		return input.toString();
-	}
-	
 	static List<String> rep(Environment env, String inputLine) {
 		List<String> results = new LinkedList<>();
 		try {
 			Reader reader = new Reader(inputLine);
 			for (Value form = reader.readForm(); form != null; form = reader.readForm()) {
 				try {
-					results.add(print(form.eval(env)));
+					results.add(form.eval(env).prStr(true));
 				} catch (MalException ex) {
 					results.add(ex.getMessage());
 				}
@@ -40,11 +34,8 @@ public class step2_eval {
 	public static void main(String[] args) {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		try {
-			Environment repl_env = new Environment();
-			repl_env.set(symbol("+"), fn(Core::add));
-			repl_env.set(symbol("-"), fn(Core::subtract));
-			repl_env.set(symbol("*"), fn(Core::multiply));
-			repl_env.set(symbol("/"), fn(Core::divide));
+			Environment repl_env = new Environment(Core.NS);
+			rep(repl_env, "(def! not (fn* [a] (if a false true)))");
 			while (true) {
 				System.out.print("user> ");
 				System.out.flush();

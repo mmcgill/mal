@@ -3,7 +3,7 @@ package com.github.kanaka.mal.value;
 import com.github.kanaka.mal.MalException;
 
 public class IntValue extends Value {
-	private final int value;
+	public final int value;
 	
 	IntValue(int value) {
 		this.value = value;
@@ -56,7 +56,7 @@ public class IntValue extends Value {
 	}
 	
 	@Override
-	public String toString() {
+	public String prStr(boolean printReadably) {
 		return Integer.toString(value);
 	}
 }

@@ -1,13 +1,13 @@
 package com.github.kanaka.mal.value;
 
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.kanaka.mal.Environment;
 
-public class VectorValue extends Value implements ValueSequence {
+public class VectorValue extends ValueSequence {
 	private final Value[] values;
 	
 	private VectorValue(Value[] values, boolean copy) {
@@ -27,13 +27,8 @@ public class VectorValue extends Value implements ValueSequence {
 	}
 	
 	@Override
-	public Iterator<Value> iterator() {
-		return Arrays.asList(values).iterator();
-	}
-	
-	@Override
-	public ValueSequence castToValueSequence() {
-		return this;
+	protected List<Value> readOnlyItems() {
+		return Collections.unmodifiableList(Arrays.asList(values));
 	}
 	
 	@Override
@@ -43,34 +38,14 @@ public class VectorValue extends Value implements ValueSequence {
 			newValues[i] = values[i].eval(env);
 		return new VectorValue(newValues, false);
 	}
-
+	
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Arrays.hashCode(values);
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		VectorValue other = (VectorValue) obj;
-		if (!Arrays.equals(values, other.values))
-			return false;
-		return true;
-	}
-
-	@Override
-	public String toString() {
+	public String prStr(boolean printReadably) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
-		sb.append(Arrays.stream(values).map(Value::toString).collect(Collectors.joining(" ")));
+		sb.append(Arrays.stream(values)
+				.map((v) -> v.prStr(printReadably))
+				.collect(Collectors.joining(" ")));
 		sb.append("]");
 		return sb.toString();
 	}

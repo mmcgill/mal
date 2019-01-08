@@ -1,13 +1,15 @@
 package com.github.kanaka.mal.value;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.kanaka.mal.Environment;
 import com.github.kanaka.mal.Special;
 
-public class ListValue extends Value implements ValueSequence {
+public class ListValue extends ValueSequence {
 	private final LinkedList<Value> values;
 
 	ListValue(Iterator<Value> iter) {
@@ -22,17 +24,12 @@ public class ListValue extends Value implements ValueSequence {
 	}
 	
 	@Override
-	public Iterator<Value> iterator() {
-		return values.iterator();
+	protected List<Value> readOnlyItems() {
+		return Collections.unmodifiableList(values);
 	}
 	
 	@Override
 	public ListValue castToList() {
-		return this;
-	}
-	
-	@Override
-	public ValueSequence castToValueSequence() {
 		return this;
 	}
 	
@@ -72,27 +69,10 @@ public class ListValue extends Value implements ValueSequence {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ListValue other = (ListValue) obj;
-		if (values == null) {
-			if (other.values != null)
-				return false;
-		} else if (!values.equals(other.values))
-			return false;
-		return true;
-	}
-	
-	@Override
-	public String toString() {
+	public String prStr(boolean printReadably) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
-		sb.append(values.stream().map(Value::toString).collect(Collectors.joining(" ")));
+		sb.append(values.stream().map((v) -> v.prStr(printReadably)).collect(Collectors.joining(" ")));
 		sb.append(")");
 		return sb.toString();
 	}

@@ -8,6 +8,13 @@ import com.github.kanaka.mal.Environment;
 import com.github.kanaka.mal.MalTypeException;
 
 public abstract class Value {
+	public abstract String prStr(boolean printReadably);
+
+	@Override
+	public String toString() {
+		return this.prStr(true);
+	}
+
 	public IntValue castToInt() {
 		throw new MalTypeException("Cannot cast "+this.toString()+" to integer");
 	}

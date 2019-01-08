@@ -17,9 +17,9 @@ public class FuncValue extends Value {
 	public FuncValue castToFn() {
 		return this;
 	}
-
+	
 	@Override
-	public String toString() {
+	public String prStr(boolean printReadably) {
 		return "#function";
 	}
 }

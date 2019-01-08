@@ -31,9 +31,9 @@ public class KeywordValue extends Value {
 			return false;
 		return true;
 	}
-
+	
 	@Override
-	public String toString() {
+	public String prStr(boolean printReadably) {
 		return ":"+name;
 	}
 }

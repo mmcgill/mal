@@ -45,7 +45,7 @@ public class SymbolValue extends Value {
 	}
 
 	@Override
-	public String toString() {
+	public String prStr(boolean printReadably) {
 		return name;
 	}
 }
