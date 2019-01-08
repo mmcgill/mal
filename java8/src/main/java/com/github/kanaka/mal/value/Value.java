@@ -27,4 +27,12 @@ public abstract class Value {
 	public static ListValue list(Iterator<Value> values) {
 		return new ListValue(values);
 	}
+	
+	public static final BoolValue TRUE = BoolValue.TRUE;
+
+	public static final BoolValue FALSE = BoolValue.FALSE;
+
+	public static final BoolValue bool(boolean b) {
+		return b ? TRUE : FALSE;
+	}
 }

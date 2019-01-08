@@ -6,6 +6,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.github.kanaka.mal.value.Value;
+
 public class ReaderTest {
 
 	@Test
@@ -49,5 +51,11 @@ public class ReaderTest {
 	@Test(expected=SyntaxException.class)
 	public void testListWithMissingCloseParen() {
 		new Reader("(1 2 3").readForm();
+	}
+	
+	@Test
+	public void testBooleans() {
+		assertEquals(Value.TRUE, new Reader("true").readForm());
+		assertEquals(Value.FALSE, new Reader("false").readForm());
 	}
 }

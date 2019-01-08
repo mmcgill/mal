@@ -71,6 +71,10 @@ public class Reader {
 				|| 
 			(ch == '-' && tok.length() > 1 && tok.charAt(1) >= '0' && tok.charAt(1) <= '9')) {
 			return integer(Integer.parseInt(tok));
+		} else if (tok.equals("true")) {
+			return Value.TRUE;
+		} else if (tok.equals("false")) {
+			return Value.FALSE;
 		} else {
 			return symbol(tok);
 		}
