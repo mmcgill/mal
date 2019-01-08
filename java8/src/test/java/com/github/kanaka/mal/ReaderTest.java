@@ -63,4 +63,17 @@ public class ReaderTest {
 	public void testNil() {
 		assertEquals(Value.NIL, new Reader("nil").readForm());
 	}
+	
+	@Test
+	public void testString() {
+		assertEquals(string("foo"), new Reader("\"foo\"").readForm());
+		assertEquals(string("fo\"o\nbar\\"), new Reader("\"fo\\\"o\\nbar\\\\\"").readForm());
+	}
+	
+	@Test
+	public void testReaderMacros() {
+		assertEquals( list(symbol("quote"), integer(1)), new Reader("'1").readForm());
+		assertEquals(list(symbol("quasiquote"), integer(1)), new Reader("`1").readForm());
+		assertEquals(list(symbol("unquote"), integer(1)), new Reader("~1").readForm());
+	}
 }
