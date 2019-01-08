@@ -4,6 +4,10 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import com.github.kanaka.mal.value.IntValue;
+import com.github.kanaka.mal.value.ListValue;
+import com.github.kanaka.mal.value.SymbolValue;
+
 public class ReaderTest {
 
 	@Test

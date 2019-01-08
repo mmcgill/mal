@@ -1,4 +1,4 @@
-package com.github.kanaka.mal;
+package com.github.kanaka.mal.value;
 
 public class IntValue extends Value {
 	private final int value;

@@ -1,4 +1,4 @@
-package com.github.kanaka.mal;
+package com.github.kanaka.mal.value;
 
 public class SymbolValue extends Value {
 	private final String name;

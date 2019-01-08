@@ -6,7 +6,7 @@ import java.io.InputStreamReader;
 
 import com.github.kanaka.mal.MalException;
 import com.github.kanaka.mal.Reader;
-import com.github.kanaka.mal.Value;
+import com.github.kanaka.mal.value.Value;
 
 public class step1_read_print {
 	

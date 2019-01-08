@@ -6,6 +6,11 @@ import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.github.kanaka.mal.value.IntValue;
+import com.github.kanaka.mal.value.ListValue;
+import com.github.kanaka.mal.value.SymbolValue;
+import com.github.kanaka.mal.value.Value;
+
 public class Reader {
 	private static final Pattern tokenRegex = Pattern.compile("[\\s,]*(~@|[\\[\\]{}()'`~^@]|\"(?:\\\\.|[^\\\\\"])*\"|;.*|[^\\s\\[\\]{}('\"`,;)]*)");
 

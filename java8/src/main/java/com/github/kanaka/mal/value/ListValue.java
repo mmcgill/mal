@@ -1,4 +1,4 @@
-package com.github.kanaka.mal;
+package com.github.kanaka.mal.value;
 
 import java.util.Iterator;
 import java.util.LinkedList;
