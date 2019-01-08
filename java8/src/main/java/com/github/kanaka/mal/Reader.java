@@ -75,6 +75,8 @@ public class Reader {
 			return Value.TRUE;
 		} else if (tok.equals("false")) {
 			return Value.FALSE;
+		} else if (tok.equals("nil")) {
+			return Value.NIL;
 		} else {
 			return symbol(tok);
 		}

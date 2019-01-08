@@ -58,4 +58,9 @@ public class ReaderTest {
 		assertEquals(Value.TRUE, new Reader("true").readForm());
 		assertEquals(Value.FALSE, new Reader("false").readForm());
 	}
+	
+	@Test
+	public void testNil() {
+		assertEquals(Value.NIL, new Reader("nil").readForm());
+	}
 }

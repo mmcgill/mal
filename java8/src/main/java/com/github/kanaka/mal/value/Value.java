@@ -35,4 +35,6 @@ public abstract class Value {
 	public static final BoolValue bool(boolean b) {
 		return b ? TRUE : FALSE;
 	}
+	
+	public static final NilValue NIL = NilValue.NIL;
 }
