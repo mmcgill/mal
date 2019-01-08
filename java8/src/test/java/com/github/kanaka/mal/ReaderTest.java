@@ -1,12 +1,10 @@
 package com.github.kanaka.mal;
 
+import static com.github.kanaka.mal.value.Value.*;
+
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-
-import com.github.kanaka.mal.value.IntValue;
-import com.github.kanaka.mal.value.ListValue;
-import com.github.kanaka.mal.value.SymbolValue;
 
 public class ReaderTest {
 
@@ -27,24 +25,24 @@ public class ReaderTest {
 	
 	@Test
 	public void testReadIntForm() {
-		assertEquals(new IntValue(42), new Reader("42").readForm());
+		assertEquals(integer(42), new Reader("42").readForm());
 
 	}
 	
 	@Test
 	public void testReadSymbolForm() {
-		assertEquals(new SymbolValue("forty_two"), new Reader("forty_two").readForm());
+		assertEquals(symbol("forty_two"), new Reader("forty_two").readForm());
 	}
 	
 	@Test
 	public void testReadListForm() {
 		assertEquals(
-				new ListValue(new IntValue(1), new SymbolValue("two"), new IntValue(3)),
+				list(integer(1), symbol("two"), integer(3)),
 				new Reader("(1 two 3)").readForm());
 
-		assertEquals(new ListValue(), new Reader("()").readForm());
+		assertEquals(list(), new Reader("()").readForm());
 
-		assertEquals(new ListValue(new ListValue(), new ListValue()),
+		assertEquals(list(list(), list()),
 				new Reader("(()())").readForm());
 	}
 	

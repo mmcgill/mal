@@ -8,15 +8,9 @@ import java.util.stream.Collectors;
 public class ListValue extends Value {
 	private final List<Value> values = new LinkedList<>();
 
-	public ListValue(Iterator<Value> iter) {
+	ListValue(Iterator<Value> iter) {
 		while (iter.hasNext()) {
 			values.add(iter.next());
-		}
-	}
-	
-	public ListValue(Value... vs) {
-		for (Value v : vs) {
-			values.add(v);
 		}
 	}
 

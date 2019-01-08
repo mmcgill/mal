@@ -6,10 +6,9 @@ import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.github.kanaka.mal.value.IntValue;
-import com.github.kanaka.mal.value.ListValue;
-import com.github.kanaka.mal.value.SymbolValue;
 import com.github.kanaka.mal.value.Value;
+
+import static com.github.kanaka.mal.value.Value.*;
 
 public class Reader {
 	private static final Pattern tokenRegex = Pattern.compile("[\\s,]*(~@|[\\[\\]{}()'`~^@]|\"(?:\\\\.|[^\\\\\"])*\"|;.*|[^\\s\\[\\]{}('\"`,;)]*)");
@@ -53,7 +52,7 @@ public class Reader {
 	
 	private Value readList() {
 		tokens.poll();
-		ListValue result = new ListValue(new Iterator<Value>() {
+		Value result = list(new Iterator<Value>() {
 			@Override public Value next() {
 				return readForm();
 			}
@@ -71,9 +70,9 @@ public class Reader {
 		if ((ch >= '0' && ch <= '9')
 				|| 
 			(ch == '-' && tok.length() > 1 && tok.charAt(1) >= '0' && tok.charAt(1) <= '9')) {
-			return new IntValue(Integer.parseInt(tok));
+			return integer(Integer.parseInt(tok));
 		} else {
-			return new SymbolValue(tok);
+			return symbol(tok);
 		}
 	}
 }

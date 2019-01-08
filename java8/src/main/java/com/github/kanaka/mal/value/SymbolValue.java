@@ -2,7 +2,7 @@ package com.github.kanaka.mal.value;
 
 public class SymbolValue extends Value {
 	private final String name;
-	public SymbolValue(String name) {
+	SymbolValue(String name) {
 		this.name = name;
 	}
 
