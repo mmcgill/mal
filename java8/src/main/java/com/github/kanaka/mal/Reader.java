@@ -1,11 +1,14 @@
 package com.github.kanaka.mal;
 
 import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.github.kanaka.mal.value.SymbolValue;
 import com.github.kanaka.mal.value.Value;
 
 import static com.github.kanaka.mal.value.Value.*;
@@ -39,12 +42,29 @@ public class Reader {
 		return tok;
 	}
 	
+	private static final Map<String,SymbolValue> READER_MACROS = new HashMap<>();
+	{
+		READER_MACROS.put("'", symbol("quote"));
+		READER_MACROS.put("`", symbol("quasiquote"));
+		READER_MACROS.put("~", symbol("unquote"));
+		READER_MACROS.put("~@", symbol("splice-unquote"));
+		READER_MACROS.put("@", symbol("deref"));
+	}
+	
 	public Value readForm() {
 		String tok = tokens.peek();
 		if (tok == null) {
 			return null;
 		} else if (tok.startsWith("(")) {
 			return readList();
+		} else if (READER_MACROS.containsKey(tok)) {
+			tokens.poll();
+			return list(READER_MACROS.get(tok), readForm());
+		} else if (tok.equals("^")) {
+			tokens.poll();
+			Value m = readForm();
+			Value v = readForm();
+			return list(symbol("with-meta"), v, m);
 		} else {
 			return readAtom();
 		}
