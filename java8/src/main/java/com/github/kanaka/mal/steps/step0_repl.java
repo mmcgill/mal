@@ -1,4 +1,4 @@
-package com.github.kanaka.mal;
+package com.github.kanaka.mal.steps;
 
 import java.io.BufferedReader;
 import java.io.IOException;

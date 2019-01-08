@@ -1,16 +1,10 @@
-
-TESTS =
-
 PACKAGE = com/github/kanaka/mal
-
-SOURCES =
-
 all:
 	mvn compile
 
 dist: mal.jar mal
 
-mal.jar: target/classes/$(PACKAGE)/stepA_mal.class
+mal.jar: target/classes/$(PACKAGE)/steps/stepA_mal.class
 	mvn assembly:assembly
 	cp target/mal-0.0.1.jar $@
 
@@ -19,10 +13,7 @@ mal: mal.jar
 	cat <(echo -e '#!/bin/sh\nexec java -jar "$$0" "$$@"') mal.jar > $@
 	chmod +x mal
 
-src/main/java/$(PACKAGE)/%.java:
-	mvn compile
-
-target/classes/$(PACKAGE)/step%.class: src/main/java/$(PACKAGE)/step%.java ${SOURCES}
+target/classes/$(PACKAGE)/steps/step%.class:
 	mvn compile
 
 clean:

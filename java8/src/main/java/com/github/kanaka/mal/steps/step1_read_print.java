@@ -1,8 +1,12 @@
-package com.github.kanaka.mal;
+package com.github.kanaka.mal.steps;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import com.github.kanaka.mal.MalException;
+import com.github.kanaka.mal.Reader;
+import com.github.kanaka.mal.Value;
 
 public class step1_read_print {
 	
