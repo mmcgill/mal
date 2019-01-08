@@ -60,6 +60,8 @@ public class Reader {
 			return readList();
 		} else if (tok.startsWith("[")) {
 			return readVector();
+		} else if (tok.startsWith("{")) {
+			return readHashMap();
 		} else if (READER_MACROS.containsKey(tok)) {
 			tokens.poll();
 			return list(READER_MACROS.get(tok), readForm());
@@ -73,18 +75,24 @@ public class Reader {
 		}
 	}
 	
-	private Value readList() {
-		tokens.poll();
-		Value result = list(new Iterator<Value>() {
+	private Iterator<Value> iterateUpTo(String tok) {
+		return new Iterator<Value>() {
 			@Override public Value next() {
 				return readForm();
 			}
 			@Override public boolean hasNext() {
-				return !tokens.isEmpty() && !tokens.peek().equals(")");
+				return !tokens.isEmpty() && !tokens.peek().equals(tok);
 			}
-		});
-		pollOrError("EOF: Missing closing ')'");
-		return result;
+		};
+	}
+	
+	private Value readList() {
+		tokens.poll();
+		try {
+			return list(iterateUpTo(")"));
+		} finally {
+			pollOrError("EOF: Missing closing ')'");
+		}
 	}
 	
 	private Value readVector() {
@@ -97,6 +105,15 @@ public class Reader {
 			return vector(items);
 		} finally {
 			pollOrError("EOF: Missing closing ']'");
+		}
+	}
+	
+	private Value readHashMap() {
+		tokens.poll();
+		try {
+			return hashMap(iterateUpTo("}"));
+		} finally {
+			pollOrError("EOF: Missing closing '}'");
 		}
 	}
 	

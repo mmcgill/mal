@@ -85,4 +85,12 @@ public abstract class Value {
 	public static VectorValue vector(List<Value> values) {
 		return new VectorValue(values);
 	}
+	
+	public static MapValue hashMap(Value... values) {
+		return new MapValue(values);
+	}
+	
+	public static MapValue hashMap(Iterator<Value> values) {
+		return new MapValue(values);
+	}
 }

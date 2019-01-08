@@ -86,4 +86,9 @@ public class ReaderTest {
 	public void testVectors() {
 		assertEquals(vector(integer(1), integer(2), integer(3)), new Reader("[1 2 3]").readForm());
 	}
+	
+	@Test
+	public void testMap() {
+		assertEquals(hashMap(keyword("foo"), string("bar")), new Reader("{:foo \"bar\"}").readForm());
+	}
 }
