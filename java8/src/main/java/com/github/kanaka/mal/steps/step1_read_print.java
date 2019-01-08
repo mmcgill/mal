@@ -3,16 +3,14 @@ package com.github.kanaka.mal.steps;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.github.kanaka.mal.MalException;
 import com.github.kanaka.mal.Reader;
 import com.github.kanaka.mal.value.Value;
 
 public class step1_read_print {
-	
-	static Value read(String input) {
-		return new Reader(input).readForm();
-	}
 	
 	static Value eval(Value input) {
 		return input;
@@ -22,12 +20,21 @@ public class step1_read_print {
 		return input.toString();
 	}
 	
-	static String rep(String input) {
+	static List<String> rep(String inputLine) {
+		List<String> results = new LinkedList<>();
 		try {
-			return print(eval(read(input)));
+			Reader reader = new Reader(inputLine);
+			for (Value form = reader.readForm(); form != null; form = reader.readForm()) {
+				try {
+					results.add(print(eval(form)));
+				} catch (MalException ex) {
+					results.add(ex.getMessage());
+				}
+			}
 		} catch (MalException ex) {
-			return ex.getMessage();
+			results.add(ex.getMessage());
 		}
+		return results;
 	}
 
 	public static void main(String[] args) {
@@ -41,7 +48,9 @@ public class step1_read_print {
 					System.out.println("\nBye!");
 					break;
 				}
-				System.out.println(rep(inputLine));
+				for (String result : rep(inputLine)) {
+					System.out.println(result);
+				}
 				System.out.flush();
 			}
 		} catch (IOException ex) {

@@ -62,6 +62,9 @@ public class Reader {
 			return readVector();
 		} else if (tok.startsWith("{")) {
 			return readHashMap();
+		} else if (tok.startsWith(";")) {
+			tokens.poll();
+			return readForm();
 		} else if (READER_MACROS.containsKey(tok)) {
 			tokens.poll();
 			return list(READER_MACROS.get(tok), readForm());
