@@ -76,4 +76,9 @@ public class ReaderTest {
 		assertEquals(list(symbol("quasiquote"), integer(1)), new Reader("`1").readForm());
 		assertEquals(list(symbol("unquote"), integer(1)), new Reader("~1").readForm());
 	}
+	
+	@Test
+	public void testKeywords() {
+		assertEquals(keyword("foo"), new Reader(":foo").readForm());
+	}
 }

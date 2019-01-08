@@ -72,4 +72,8 @@ public abstract class Value {
 		}
 		return sb.toString();
 	}
+	
+	public static KeywordValue keyword(String name) {
+		return new KeywordValue(name);
+	}
 }
