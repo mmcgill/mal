@@ -3,6 +3,7 @@ package com.github.kanaka.mal;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -34,7 +35,7 @@ public class Reader {
 		tokens = tokenize(input);
 	}
 	
-	private String nextToken(String errorIfNone) {
+	private String pollOrError(String errorIfNone) {
 		String tok = tokens.poll();
 		if (tok == null) {
 			throw new SyntaxException(errorIfNone);
@@ -57,6 +58,8 @@ public class Reader {
 			return null;
 		} else if (tok.startsWith("(")) {
 			return readList();
+		} else if (tok.startsWith("[")) {
+			return readVector();
 		} else if (READER_MACROS.containsKey(tok)) {
 			tokens.poll();
 			return list(READER_MACROS.get(tok), readForm());
@@ -80,8 +83,21 @@ public class Reader {
 				return !tokens.isEmpty() && !tokens.peek().equals(")");
 			}
 		});
-		nextToken("EOF: Missing closing ')'");
+		pollOrError("EOF: Missing closing ')'");
 		return result;
+	}
+	
+	private Value readVector() {
+		tokens.poll();
+		LinkedList<Value> items = new LinkedList<>();
+		while (!tokens.isEmpty() && !"]".equals(tokens.peek())) {
+			items.add(readForm());
+		}
+		try {
+			return vector(items);
+		} finally {
+			pollOrError("EOF: Missing closing ']'");
+		}
 	}
 	
 	private Value readAtom() {

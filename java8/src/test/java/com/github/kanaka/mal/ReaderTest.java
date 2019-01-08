@@ -72,7 +72,7 @@ public class ReaderTest {
 	
 	@Test
 	public void testReaderMacros() {
-		assertEquals( list(symbol("quote"), integer(1)), new Reader("'1").readForm());
+		assertEquals(list(symbol("quote"), integer(1)), new Reader("'1").readForm());
 		assertEquals(list(symbol("quasiquote"), integer(1)), new Reader("`1").readForm());
 		assertEquals(list(symbol("unquote"), integer(1)), new Reader("~1").readForm());
 	}
@@ -80,5 +80,10 @@ public class ReaderTest {
 	@Test
 	public void testKeywords() {
 		assertEquals(keyword("foo"), new Reader(":foo").readForm());
+	}
+	
+	@Test
+	public void testVectors() {
+		assertEquals(vector(integer(1), integer(2), integer(3)), new Reader("[1 2 3]").readForm());
 	}
 }

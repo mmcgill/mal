@@ -1,6 +1,7 @@
 package com.github.kanaka.mal.value;
 
 import java.util.Iterator;
+import java.util.List;
 
 public abstract class Value {
 	public static IntValue integer(int v) {
@@ -75,5 +76,13 @@ public abstract class Value {
 	
 	public static KeywordValue keyword(String name) {
 		return new KeywordValue(name);
+	}
+	
+	public static VectorValue vector(Value... values) {
+		return new VectorValue(values);
+	}
+	
+	public static VectorValue vector(List<Value> values) {
+		return new VectorValue(values);
 	}
 }
