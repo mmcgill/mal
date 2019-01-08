@@ -1,9 +1,17 @@
 package com.github.kanaka.mal.value;
 
+import com.github.kanaka.mal.Environment;
+
 public class SymbolValue extends Value {
 	private final String name;
+
 	SymbolValue(String name) {
 		this.name = name;
+	}
+	
+	@Override
+	public Value evalAst(Environment env) {
+		return env.get(this);
 	}
 
 	@Override

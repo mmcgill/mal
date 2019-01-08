@@ -4,15 +4,33 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.github.kanaka.mal.Environment;
+
 public class VectorValue extends Value {
 	private final Value[] values;
+	
+	private VectorValue(Value[] values, boolean copy) {
+		if (copy) {
+			this.values = Arrays.copyOf(values, values.length);
+		} else {
+			this.values = values;
+		}
+	}
 
 	VectorValue(Value... values) {
-		this.values = Arrays.copyOf(values, values.length);
+		this(values, true);
 	}
 	
 	VectorValue(List<Value> values) {
-		this.values = values.toArray(new Value[values.size()]);
+		this(values.toArray(new Value[values.size()]), false);
+	}
+	
+	@Override
+	public Value evalAst(Environment env) {
+		Value[] newValues = new Value[values.length];
+		for (int i=0; i < values.length; ++i)
+			newValues[i] = values[i].eval(env);
+		return new VectorValue(newValues, false);
 	}
 
 	@Override

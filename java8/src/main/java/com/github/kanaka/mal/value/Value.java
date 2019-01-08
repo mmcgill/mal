@@ -2,8 +2,28 @@ package com.github.kanaka.mal.value;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
+
+import com.github.kanaka.mal.Environment;
+import com.github.kanaka.mal.MalTypeException;
 
 public abstract class Value {
+	public IntValue castToInt() {
+		throw new MalTypeException("Cannot cast "+this.toString()+" to integer");
+	}
+	
+	public FuncValue castToFn() {
+		throw new MalTypeException("Cannot cast "+this.toString()+" to fn");
+	}
+	
+	public Value eval(Environment env) {
+		return evalAst(env);
+	}
+	
+	public Value evalAst(Environment env) {
+		return this;
+	}
+
 	public static IntValue integer(int v) {
 		return new IntValue(v);
 	}
@@ -92,5 +112,9 @@ public abstract class Value {
 	
 	public static MapValue hashMap(Iterator<Value> values) {
 		return new MapValue(values);
+	}
+	
+	public static FuncValue fn(Function<Value[], Value> f) {
+		return new FuncValue(f);
 	}
 }

@@ -3,15 +3,22 @@ package com.github.kanaka.mal.value;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.github.kanaka.mal.Environment;
 import com.github.kanaka.mal.MalException;
 
 public class MapValue extends Value {
-	private final Map<Value,Value> values = new HashMap<>();
+	private final Map<Value,Value> values;
+	
+	private MapValue(Map<Value,Value> values) {
+		this.values = values;
+	}
 	
 	MapValue(Value... pairs) {
+		values = new HashMap<>();
 		if (pairs.length % 2 == 1) {
 			throw new MalException("hash-map must have even number of elements");
 		}
@@ -21,6 +28,7 @@ public class MapValue extends Value {
 	}
 	
 	MapValue(Iterator<Value> iter) {
+		values = new HashMap<>();
 		while (iter.hasNext()) {
 			Value k = iter.next();
 			if (!iter.hasNext()) {
@@ -28,6 +36,15 @@ public class MapValue extends Value {
 			}
 			values.put(k, iter.next());
 		}
+	}
+	
+	@Override
+	public Value evalAst(Environment env) {
+		Map<Value,Value> newValues = new HashMap<>(values.size());
+		for (Entry<Value, Value> e : values.entrySet()) {
+			newValues.put(e.getKey().eval(env), e.getValue().eval(env));
+		}
+		return new MapValue(newValues);
 	}
 
 	@Override

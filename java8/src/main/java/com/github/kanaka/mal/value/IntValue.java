@@ -1,10 +1,36 @@
 package com.github.kanaka.mal.value;
 
+import com.github.kanaka.mal.MalException;
+
 public class IntValue extends Value {
 	private final int value;
 	
 	IntValue(int value) {
 		this.value = value;
+	}
+	
+	public IntValue add(IntValue v) {
+		return new IntValue(value+v.value);
+	}
+	
+	public IntValue subtract(IntValue v) {
+		return new IntValue(value-v.value);
+	}
+	
+	public IntValue multiply(IntValue v) {
+		return new IntValue(value*v.value);
+	}
+	
+	public IntValue divide(IntValue v) {
+		if (v.value == 0) {
+			throw new MalException("Divide by zero");
+		}
+		return new IntValue(value/v.value);
+	}
+	
+	@Override
+	public IntValue castToInt() {
+		return this;
 	}
 
 	@Override

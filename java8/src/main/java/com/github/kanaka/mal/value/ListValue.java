@@ -5,13 +5,41 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.github.kanaka.mal.Environment;
+
 public class ListValue extends Value {
-	private final List<Value> values = new LinkedList<>();
+	private final List<Value> values; 
 
 	ListValue(Iterator<Value> iter) {
+		values = new LinkedList<>();
 		while (iter.hasNext()) {
 			values.add(iter.next());
 		}
+	}
+	
+	private ListValue(LinkedList<Value> values) {
+		this.values = values;
+	}
+	
+	@Override
+	public Value eval(Environment env) {
+		if (values.isEmpty()) {
+			return this;
+		} else  {
+			ListValue l = evalAst(env);
+			FuncValue f = l.values.get(0).castToFn();
+			Value[] args = l.values.stream().skip(1).toArray((n) -> new Value[n]);
+			return f.apply(args);
+		}
+	}
+	
+	@Override
+	public ListValue evalAst(Environment env) {
+		LinkedList<Value> evaledValues = new LinkedList<>();
+		for (Value v : values) {
+			evaledValues.add(v.eval(env));
+		}
+		return new ListValue(evaledValues);
 	}
 
 	@Override
