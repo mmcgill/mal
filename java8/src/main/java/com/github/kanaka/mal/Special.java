@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.github.kanaka.mal.value.FuncValue;
 import com.github.kanaka.mal.value.ListValue;
 import com.github.kanaka.mal.value.SymbolValue;
 import com.github.kanaka.mal.value.Value;
@@ -102,11 +101,7 @@ public abstract class Special {
 			}
 			final SymbolValue variadicParam = tempVariadicParam;
 
-			return EvalResult.done(new FuncValue((inputs) -> {
-				if (variadicParam == null && inputs.length != params.size())
-					throw new MalException("Wrong number of args: expected "+params.size()+", got "+inputs.length);
-				if (variadicParam != null && inputs.length < params.size())
-					throw new MalException("Wrong number of args: expected at least "+params.size()+", got "+inputs.length);
+			return EvalResult.done(tcoFn((inputs) -> {
 				Environment newEnv = new Environment(env);
 				int i=0;
 				for (SymbolValue param : params) {
@@ -122,7 +117,7 @@ public abstract class Special {
 					newEnv.set(variadicParam, remainder);
 				}
 				return EvalResult.tailCall(args[1], newEnv);
-			}));
+			}, params.size(), variadicParam == null ? params.size() : Integer.MAX_VALUE));
 		}
 	};
 	

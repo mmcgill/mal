@@ -22,14 +22,14 @@ public class Core {
 	public static final Environment NS = new Environment();
 	static {
 		NS.set(symbol("+"), fn(Core::add));
-		NS.set(symbol("-"), fn(Core::subtract));
+		NS.set(symbol("-"), fn(Core::subtract, 1, Integer.MAX_VALUE));
 		NS.set(symbol("*"), fn(Core::multiply));
-		NS.set(symbol("/"), fn(Core::divide));
+		NS.set(symbol("/"), fn(Core::divide, 1, Integer.MAX_VALUE));
 
-		NS.set(symbol("list"), fn(Value::list));
-		NS.set(symbol("list?"), fn(Core::isList));
-		NS.set(symbol("empty?"), fn(Core::isEmpty));
-		NS.set(symbol("count"), fn(Core::count));
+		NS.set(symbol("list"), fn(Value::list, 0, Integer.MAX_VALUE));
+		NS.set(symbol("list?"), fn1(Core::isList));
+		NS.set(symbol("empty?"), fn1(Core::isEmpty));
+		NS.set(symbol("count"), fn1(Core::count));
 
 		NS.set(symbol("="), fn(Core::isEqual));
 		NS.set(symbol("<"), fn(Core::lt));
@@ -42,14 +42,14 @@ public class Core {
 		NS.set(symbol("str"), fn(Core::str));
 		NS.set(symbol("println"), fn(Core::println));
 		
-		NS.set(symbol("read-string"), fn(Core::readString));
-		NS.set(symbol("slurp"), fn(Core::slurp));
+		NS.set(symbol("read-string"), fn1(Core::readString));
+		NS.set(symbol("slurp"), fn1(Core::slurp));
 		
-		NS.set(symbol("atom"), fn(Core::atom));
-		NS.set(symbol("atom?"), fn(Core::isAtom));
-		NS.set(symbol("deref"), fn(Core::deref));
+		NS.set(symbol("atom"), fn1(Core::atom));
+		NS.set(symbol("atom?"), fn1(Core::isAtom));
+		NS.set(symbol("deref"), fn1(Core::deref));
 		NS.set(symbol("reset!"), fn(Core::reset));
-		NS.set(symbol("swap!"), fn(Core::swap));
+		NS.set(symbol("swap!"), fn(Core::swap, 2, Integer.MAX_VALUE));
 	}
 	
 	public static IntValue add(Value[] inputs) {
@@ -61,14 +61,10 @@ public class Core {
 	}
 	
 	public static IntValue subtract(Value[] inputs) {
-		if (inputs.length == 0) {
-			throw new MalException("function requires at least 1 argument");
-		} else {
-			IntValue result = inputs[0].castToInt();
-			for (int i=1; i < inputs.length; ++i)
-				result = result.subtract(inputs[i].castToInt());
-			return result;
-		}
+		IntValue result = inputs[0].castToInt();
+		for (int i=1; i < inputs.length; ++i)
+			result = result.subtract(inputs[i].castToInt());
+		return result;
 	}
 	
 	public static IntValue multiply(Value[] inputs) {
@@ -80,32 +76,22 @@ public class Core {
 	}
 	
 	public static IntValue divide(Value[] inputs) {
-		if (inputs.length == 0) {
-			throw new MalException("function requires at least 1 argument");
-		} else {
-			IntValue result = inputs[0].castToInt();
-			for (int i=1; i < inputs.length; ++i)
-				result = result.divide(inputs[i].castToInt());
-			return result;
-		}
+		IntValue result = inputs[0].castToInt();
+		for (int i=1; i < inputs.length; ++i)
+			result = result.divide(inputs[i].castToInt());
+		return result;
 	}
 	
-	public static BoolValue isList(Value[] inputs) {
-		if (inputs.length != 1)
-			throw new MalException("function expects 1 argument, got "+inputs.length);
-		return bool(inputs[0] instanceof ListValue);
+	public static BoolValue isList(Value input) {
+		return bool(input instanceof ListValue);
 	}
 	
-	public static BoolValue isEmpty(Value[] inputs) {
-		if (inputs.length != 1)
-			throw new MalException("function expects 1 argument, got "+inputs.length);
-		return bool(inputs[0].castToValueSequence().size() == 0);
+	public static BoolValue isEmpty(Value input) {
+		return bool(input.castToValueSequence().size() == 0);
 	}
 	
-	public static IntValue count(Value[] inputs) {
-		if (inputs.length != 1)
-			throw new MalException("function expects 1 argument, got "+inputs.length);
-		return integer(inputs[0].castToValueSequence().size());
+	public static IntValue count(Value input) {
+		return integer(input.castToValueSequence().size());
 	}
 	
 	private static BoolValue reduceToBool(BiFunction<Value,Value,Boolean> op, Value[] inputs) {
@@ -160,17 +146,13 @@ public class Core {
 		return Value.NIL;
 	}
 	
-	public static Value readString(Value[] inputs) {
-		if (inputs.length != 1)
-			throw new MalException("Expected 1 argument, got "+inputs.length);
-		Value v = new Reader(inputs[0].castToString().value).readForm();
+	public static Value readString(Value input) {
+		Value v = new Reader(input.castToString().value).readForm();
 		return (v == null) ? Value.NIL : v;
 	}
 	
-	public static StringValue slurp(Value[] inputs) {
-		if (inputs.length != 1)
-			throw new MalException("Expected 1 argument, got "+inputs.length);
-		String filePath = inputs[0].castToString().value;
+	public static StringValue slurp(Value input) {
+		String filePath = input.castToString().value;
 
 		try {
 			return string(new String(Files.readAllBytes(Paths.get(filePath))));
@@ -179,34 +161,24 @@ public class Core {
 		}
 	}
 	
-	public static AtomValue atom(Value[] inputs) {
-		if (inputs.length != 1)
-			throw new MalException("Expected 1 argument, got "+inputs.length);
-		return Value.atom(inputs[0]);
+	public static AtomValue atom(Value input) {
+		return Value.atom(input);
 	}
 	
-	public static BoolValue isAtom(Value[] inputs) {
-		if (inputs.length != 1)
-			throw new MalException("Expected 1 argument, got "+inputs.length);
-		return bool(inputs[0] instanceof AtomValue);
+	public static BoolValue isAtom(Value input) {
+		return bool(input instanceof AtomValue);
 	}
 	
-	public static Value deref(Value[] inputs) {
-		if (inputs.length != 1)
-			throw new MalException("Expected 1 argument, got "+inputs.length);
-		return inputs[0].castToAtom().get();
+	public static Value deref(Value input) {
+		return input.castToAtom().get();
 	}
 	
-	public static Value reset(Value[] inputs) {
-		if (inputs.length != 2)
-			throw new MalException("Expected 2 arguments, got "+inputs.length);
-		inputs[0].castToAtom().set(inputs[1]);
-		return inputs[1];
+	public static Value reset(Value atom, Value value) {
+		atom.castToAtom().set(value);
+		return value;
 	}
 	
 	public static Value swap(Value[] inputs) {
-		if (inputs.length < 2)
-			throw new MalException("Expected 2 arguments, got "+inputs.length);
 		AtomValue a = inputs[0].castToAtom();
 		FuncValue f = inputs[1].castToFn();
 		Value[] args = new Value[1+(inputs.length-2)];

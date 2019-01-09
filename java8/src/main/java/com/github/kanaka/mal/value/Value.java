@@ -2,6 +2,7 @@ package com.github.kanaka.mal.value;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.github.kanaka.mal.Environment;
@@ -174,12 +175,24 @@ public abstract class Value {
 		return new MapValue(values);
 	}
 	
-	public static FuncValue tcoFn(Function<Value[], EvalResult> f) {
-		return new FuncValue(f);
+	public static FuncValue tcoFn(Function<Value[], EvalResult> f, int minArgs, int maxArgs) {
+		return new FuncValue(f, minArgs, maxArgs);
 	}
 	
 	public static FuncValue fn(Function<Value[], Value> f) {
-		return new FuncValue((inputs) -> EvalResult.done(f.apply(inputs)));
+		return new FuncValue((inputs) -> EvalResult.done(f.apply(inputs)), 0, Integer.MAX_VALUE);
+	}
+	
+	public static FuncValue fn(Function<Value[], Value> f, int minArgs, int maxArgs) {
+		return new FuncValue((inputs) -> EvalResult.done(f.apply(inputs)), minArgs, maxArgs);
+	}
+	
+	public static FuncValue fn1(Function<Value, Value> f) {
+		return new FuncValue((inputs) -> EvalResult.done(f.apply(inputs[0])), 1, 1);
+	}
+	
+	public static FuncValue fn(BiFunction<Value,Value,Value> f) {
+		return new FuncValue((inputs) -> EvalResult.done(f.apply(inputs[0], inputs[1])), 2, 2);
 	}
 	
 	public static AtomValue atom(Value innerValue) {

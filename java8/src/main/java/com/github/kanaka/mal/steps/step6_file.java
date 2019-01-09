@@ -42,8 +42,8 @@ public class step6_file {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		try {
 			Environment repl_env = new Environment(Core.NS);
-			repl_env.set(symbol("eval"), fn((inputs) -> {
-				return inputs[0].eval(repl_env);
+			repl_env.set(symbol("eval"), fn1((input) -> {
+				return input.eval(repl_env);
 			}));
 			rep(repl_env, "(def! not (fn* [a] (if a false true)))");
 			rep(repl_env, "(def! load-file (fn* [f] (eval (read-string (str \"(do \" (slurp f) \")\")))))");
