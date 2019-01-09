@@ -2,11 +2,16 @@ package com.github.kanaka.mal;
 
 import static com.github.kanaka.mal.value.Value.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import com.github.kanaka.mal.value.AtomValue;
 import com.github.kanaka.mal.value.BoolValue;
+import com.github.kanaka.mal.value.FuncValue;
 import com.github.kanaka.mal.value.IntValue;
 import com.github.kanaka.mal.value.ListValue;
 import com.github.kanaka.mal.value.NilValue;
@@ -36,6 +41,15 @@ public class Core {
 		NS.set(symbol("prn"), fn(Core::prn));
 		NS.set(symbol("str"), fn(Core::str));
 		NS.set(symbol("println"), fn(Core::println));
+		
+		NS.set(symbol("read-string"), fn(Core::readString));
+		NS.set(symbol("slurp"), fn(Core::slurp));
+		
+		NS.set(symbol("atom"), fn(Core::atom));
+		NS.set(symbol("atom?"), fn(Core::isAtom));
+		NS.set(symbol("deref"), fn(Core::deref));
+		NS.set(symbol("reset!"), fn(Core::reset));
+		NS.set(symbol("swap!"), fn(Core::swap));
 	}
 	
 	public static IntValue add(Value[] inputs) {
@@ -144,5 +158,69 @@ public class Core {
 				.map((v) -> v.prStr(false))
 				.collect(Collectors.joining(" ")));
 		return Value.NIL;
+	}
+	
+	public static Value readString(Value[] inputs) {
+		if (inputs.length != 1)
+			throw new MalException("Expected 1 argument, got "+inputs.length);
+		Value v = new Reader(inputs[0].castToString().value).readForm();
+		return (v == null) ? Value.NIL : v;
+	}
+	
+	public static StringValue slurp(Value[] inputs) {
+		if (inputs.length != 1)
+			throw new MalException("Expected 1 argument, got "+inputs.length);
+		String filePath = inputs[0].castToString().value;
+
+		try {
+			return string(new String(Files.readAllBytes(Paths.get(filePath))));
+		} catch (IOException ex) {
+			throw new MalException("Failed to read file "+filePath+": "+ex.getMessage());
+		}
+	}
+	
+	public static AtomValue atom(Value[] inputs) {
+		if (inputs.length != 1)
+			throw new MalException("Expected 1 argument, got "+inputs.length);
+		return Value.atom(inputs[0]);
+	}
+	
+	public static BoolValue isAtom(Value[] inputs) {
+		if (inputs.length != 1)
+			throw new MalException("Expected 1 argument, got "+inputs.length);
+		return bool(inputs[0] instanceof AtomValue);
+	}
+	
+	public static Value deref(Value[] inputs) {
+		if (inputs.length != 1)
+			throw new MalException("Expected 1 argument, got "+inputs.length);
+		return inputs[0].castToAtom().get();
+	}
+	
+	public static Value reset(Value[] inputs) {
+		if (inputs.length != 2)
+			throw new MalException("Expected 2 arguments, got "+inputs.length);
+		inputs[0].castToAtom().set(inputs[1]);
+		return inputs[1];
+	}
+	
+	public static Value swap(Value[] inputs) {
+		if (inputs.length < 2)
+			throw new MalException("Expected 2 arguments, got "+inputs.length);
+		AtomValue a = inputs[0].castToAtom();
+		FuncValue f = inputs[1].castToFn();
+		Value[] args = new Value[1+(inputs.length-2)];
+		for (int i=0; i < inputs.length-2; i++) {
+			args[i+1] = inputs[i+2];
+		}
+		return a.swap((v) -> {
+			args[0] = v;
+			EvalResult result = f.apply(args);
+			if (result.isTailCall) {
+				return result.value.eval(result.env);
+			} else {
+				return result.value;
+			}
+		});
 	}
 }

@@ -37,4 +37,9 @@ public class StringValue extends Value {
 	public String prStr(boolean printReadably) {
 		return (printReadably ? "\""+Value.escape(value)+"\"" : value);
 	}
+	
+	@Override
+	public StringValue castToString() {
+		return this;
+	}
 }

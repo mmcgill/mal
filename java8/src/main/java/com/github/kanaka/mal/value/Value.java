@@ -55,6 +55,14 @@ public abstract class Value {
 		throw new MalTypeException("Cannot cast "+this.toString()+" to value sequence");
 	}
 	
+	public StringValue castToString() {
+		throw new MalTypeException("Cannot cast "+this.toString()+" to string");
+	}
+	
+	public AtomValue castToAtom() {
+		throw new MalTypeException("Cannot cast "+this.toString()+" to atom");
+	}
+	
 	protected EvalResult internalEval(Environment env) {
 		return new EvalResult(evalAst(env), false, null);
 	}
@@ -172,5 +180,9 @@ public abstract class Value {
 	
 	public static FuncValue fn(Function<Value[], Value> f) {
 		return new FuncValue((inputs) -> EvalResult.done(f.apply(inputs)));
+	}
+	
+	public static AtomValue atom(Value innerValue) {
+		return new AtomValue(innerValue);
 	}
 }
