@@ -1,12 +1,9 @@
 package com.github.kanaka.mal.value;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Iterator;
 
 public class NilValue extends ValueSequence {
 	public static final NilValue NIL = new NilValue();
-	private static List<Value> EMPTY = Collections.unmodifiableList(new LinkedList<>());
 
 	private NilValue() {
 	}
@@ -20,8 +17,17 @@ public class NilValue extends ValueSequence {
 	public ValueSequence castToValueSequence() {
 		return this;
 	}
+	
 	@Override
-	protected List<Value> readOnlyItems() {
-		return EMPTY;
+	public int getSize() {
+		return 0;
+	}
+	
+	@Override
+	public Iterator<Value> iterator() {
+		return new Iterator<Value>() {
+			@Override public boolean hasNext() { return false; }
+			@Override public Value next() { return null; }
+		};
 	}
 }

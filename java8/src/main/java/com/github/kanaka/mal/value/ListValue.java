@@ -1,31 +1,55 @@
 package com.github.kanaka.mal.value;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.kanaka.mal.Environment;
 import com.github.kanaka.mal.Special;
 
 public class ListValue extends ValueSequence {
-	private final LinkedList<Value> values;
+	public static final ListValue EMPTY = new ListValue(null, null);
 
-	ListValue(Iterator<Value> iter) {
-		values = new LinkedList<>();
-		while (iter.hasNext()) {
-			values.add(iter.next());
+	private final Value head;
+	private final ListValue tail;
+	private final int size;
+	
+	private ListValue(Value head, ListValue tail) {
+		this.head = head;
+		this.tail = tail;
+		if (head == null) {
+			this.size = 0;
+		} else {
+			this.size = 1+tail.size;
 		}
 	}
 	
-	private ListValue(LinkedList<Value> values) {
-		this.values = values;
+	@Override
+	public int getSize() {
+		return size;
+	}
+	
+	private static class ListIterator implements Iterator<Value> {
+		private ListValue v;
+		ListIterator(ListValue start) {
+			v = start;
+		}
+		@Override
+		public boolean hasNext() {
+			return v.head != null;
+		}
+		@Override
+		public Value next() {
+			try {
+				return v.head;
+			} finally {
+				v = v.tail;
+			}
+		}
 	}
 	
 	@Override
-	protected List<Value> readOnlyItems() {
-		return Collections.unmodifiableList(values);
+	public Iterator<Value> iterator() {
+		return new ListIterator(this);
 	}
 	
 	@Override
@@ -33,46 +57,57 @@ public class ListValue extends ValueSequence {
 		return this;
 	}
 	
+	public ListValue cons(Value v) {
+		return new ListValue(v, this);
+	}
+	
+	public Value[] toArray() {
+		Value[] result = new Value[size];
+		int i=0;
+		ListValue v = this;
+		while (v.head != null) {
+			result[i++] = v.head;
+			v = v.tail;
+		}
+		return result;
+	}
+	
+	public ListValue reverse() {
+		ListValue result = EMPTY;
+		ListValue v = this;
+		while (v.head != null) {
+			result = result.cons(v.head);
+			v = v.tail;
+		}
+		return result;
+	}
+	
 	@Override
 	protected EvalResult internalEval(Environment env) {
-		if (values.isEmpty()) {
+		if (head == null) {
 			return EvalResult.done(this);
 		} else  {
-			Value first = values.get(0);
-			Special special = (first instanceof SymbolValue) ? Special.get((SymbolValue)first) : null;
+			Special special = (head instanceof SymbolValue) ? Special.get((SymbolValue)head) : null;
 			if (special != null) {
-				return special.apply(env, values.stream().skip(1).toArray((n) -> new Value[n]));
+				return special.apply(env, tail.toArray());
 			} else {
 				ListValue l = evalAst(env);
-				FuncValue f = l.values.get(0).castToFn();
-				Value[] args = l.values.stream().skip(1).toArray((n) -> new Value[n]);
-				return f.apply(args);
+				FuncValue f = l.head.castToFn();
+				return f.apply(l.tail.toArray());
 			}
 		}
 	}
 	
 	@Override
 	public ListValue evalAst(Environment env) {
-		LinkedList<Value> evaledValues = new LinkedList<>();
-		for (Value v : values) {
-			evaledValues.add(v.eval(env));
-		}
-		return new ListValue(evaledValues);
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((values == null) ? 0 : values.hashCode());
-		return result;
+		return Value.list(stream().map(v -> v.eval(env)).iterator());
 	}
 
 	@Override
 	public String prStr(boolean printReadably) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(");
-		sb.append(values.stream().map((v) -> v.prStr(printReadably)).collect(Collectors.joining(" ")));
+		sb.append(stream().map((v) -> v.prStr(printReadably)).collect(Collectors.joining(" ")));
 		sb.append(")");
 		return sb.toString();
 	}

@@ -93,21 +93,19 @@ public abstract class Value {
 		return new SymbolValue(name);
 	}
 	
-	public static ListValue list(Value... values) {
-		return new ListValue(new Iterator<Value>() {
-			private int i=0;
-
-			@Override public boolean hasNext() {
-				return i < values.length;
-			}
-			@Override public Value next() {
-				return values[i++];
-			}
-		});
+	public static ListValue list(Iterator<Value> iter) {
+		ListValue v = ListValue.EMPTY;
+		while (iter.hasNext()) {
+			v = v.cons(iter.next());
+		}
+		return v.reverse();
 	}
 	
-	public static ListValue list(Iterator<Value> values) {
-		return new ListValue(values);
+	public static ListValue list(Value... values) {
+		ListValue v = ListValue.EMPTY;
+		for (int i=values.length-1; i >= 0; --i)
+			v = v.cons(values[i]);
+		return v;
 	}
 	
 	public static final BoolValue TRUE = BoolValue.TRUE;

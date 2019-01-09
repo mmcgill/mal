@@ -1,28 +1,32 @@
 package com.github.kanaka.mal.value;
 
 import java.util.Iterator;
-import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public abstract class ValueSequence extends Value implements Iterable<Value> {
-	protected abstract List<Value> readOnlyItems();
-
-	@Override
-	public Iterator<Value> iterator() {
-		return readOnlyItems().iterator();
-	}
-	
-	public int size() {
-		return readOnlyItems().size();
-	}
-	
-	@Override
-	public int hashCode() {
-		return readOnlyItems().hashCode();
-	}
+	public abstract int getSize();
 	
 	@Override
 	public ValueSequence castToValueSequence() {
 		return this;
+	}
+	
+	public Stream<Value> stream() {
+		Spliterator<Value> si = Spliterators.spliteratorUnknownSize(iterator(), Spliterator.ORDERED);
+		return StreamSupport.stream(si, false);
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		Iterator<Value> iter = iterator();
+		while (iter.hasNext())
+			result = prime * result + iter.next().hashCode();
+		return result;
 	}
 	
 	@Override
@@ -35,6 +39,22 @@ public abstract class ValueSequence extends Value implements Iterable<Value> {
 			return false;
 		if (obj == NilValue.NIL)
 			return false;
-		return readOnlyItems().equals(((ValueSequence)obj).readOnlyItems());
+		ValueSequence that = (ValueSequence)obj;
+
+		if (getSize() != that.getSize())
+			return false;
+
+		Iterator<Value> a = this.iterator();
+		Iterator<Value> b = that.iterator();
+		while (a.hasNext()) {
+			if (!b.hasNext())
+				return false;
+			Value a1 = a.next();
+			Value b1 = b.next();
+			if (!a1.equals(b1))
+				return false;
+		}
+		if (b.hasNext()) return false;
+		return true;
 	}
 }

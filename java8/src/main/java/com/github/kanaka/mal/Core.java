@@ -87,11 +87,11 @@ public class Core {
 	}
 	
 	public static BoolValue isEmpty(Value input) {
-		return bool(input.castToValueSequence().size() == 0);
+		return bool(input.castToValueSequence().getSize() == 0);
 	}
 	
 	public static IntValue count(Value input) {
-		return integer(input.castToValueSequence().size());
+		return integer(input.castToValueSequence().getSize());
 	}
 	
 	private static BoolValue reduceToBool(BiFunction<Value,Value,Boolean> op, Value[] inputs) {

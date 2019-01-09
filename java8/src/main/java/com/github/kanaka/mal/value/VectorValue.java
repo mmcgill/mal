@@ -1,7 +1,7 @@
 package com.github.kanaka.mal.value;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,8 +27,17 @@ public class VectorValue extends ValueSequence {
 	}
 	
 	@Override
-	protected List<Value> readOnlyItems() {
-		return Collections.unmodifiableList(Arrays.asList(values));
+	public int getSize() {
+		return values.length;
+	}
+	
+	@Override
+	public Iterator<Value> iterator() {
+		return new Iterator<Value>() {
+			private int i=0;
+			@Override public boolean hasNext() { return i < values.length; }
+			@Override public Value next() { return values[i++]; }
+		};
 	}
 	
 	@Override
