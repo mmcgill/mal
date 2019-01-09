@@ -11,27 +11,28 @@ import com.github.kanaka.mal.value.FuncValue;
 import com.github.kanaka.mal.value.ListValue;
 import com.github.kanaka.mal.value.SymbolValue;
 import com.github.kanaka.mal.value.Value;
+import com.github.kanaka.mal.value.Value.EvalResult;
 import com.github.kanaka.mal.value.ValueSequence;
 
 import static com.github.kanaka.mal.value.Value.*;
 
 public abstract class Special {
-	public abstract Value apply(Environment env, Value[] args);
+	public abstract EvalResult apply(Environment env, Value[] args);
 	
 	public static final Special DEF = new Special() {
 		@Override
-		public Value apply(Environment env, Value[] args) {
+		public EvalResult apply(Environment env, Value[] args) {
 			if (args.length != 2)
 				throw new MalException("Wrong number of args: expected 2, got "+args.length);
 			Value v = args[1].eval(env);
 			env.set(args[0].castToSymbol(), v);
-			return v;
+			return EvalResult.done(v);
 		}
 	};
 	
 	public static final Special LET = new Special() {
 		@Override
-		public Value apply(Environment env, Value[] args) {
+		public EvalResult apply(Environment env, Value[] args) {
 			if (args.length != 2)
 				throw new MalException("Wrong number of args: expected 2, got "+args.length);
 			ValueSequence bindings = args[0].castToValueSequence();
@@ -46,31 +47,34 @@ public abstract class Special {
 				}
 				newEnv.set(k, iter.next().eval(newEnv));
 			}
-			return body.eval(newEnv);
+			return EvalResult.tailCall(body, newEnv);
 		}
 	};
 	
 	public static final Special DO = new Special() {
 		@Override
-		public Value apply(Environment env, Value[] args) {
-			Value result = Value.NIL;
-			for (Value v : args) {
-				result = v.eval(env);
+		public EvalResult apply(Environment env, Value[] args) {
+			if (args.length == 0) {
+				return EvalResult.done(Value.NIL);
+			} else {
+				for (int i=0; i < args.length-1; ++i) {
+					args[i].eval(env);
+				}
+				return EvalResult.tailCall(args[args.length-1], env);
 			}
-			return result;
 		}
 	};
 	
 	public static final Special IF = new Special() {
 		@Override
-		public Value apply(Environment env, Value[] args) {
+		public EvalResult apply(Environment env, Value[] args) {
 			if (args.length < 2 || args.length > 3)
 				throw new MalException("if expects 2 or 3 forms, got "+args.length);
 			Value t = args[0].eval(env);
 			if (t == Value.NIL || t == Value.FALSE) {
-				return (args.length == 3) ? args[2].eval(env) : Value.NIL;
+				return EvalResult.tailCall((args.length == 3) ? args[2] : Value.NIL, env);
 			} else {
-				return args[1].eval(env);
+				return EvalResult.tailCall(args[1], env);
 			}
 		}
 	};
@@ -79,7 +83,7 @@ public abstract class Special {
 	
 	public static final Special FN = new Special() {
 		@Override
-		public Value apply(Environment env, Value[] args) {
+		public EvalResult apply(Environment env, Value[] args) {
 			if (args.length != 2)
 				throw new MalException("fn* expects 2 forms, got "+args.length);
 			List<SymbolValue> params = new LinkedList<>();
@@ -98,7 +102,7 @@ public abstract class Special {
 			}
 			final SymbolValue variadicParam = tempVariadicParam;
 
-			return new FuncValue((inputs) -> {
+			return EvalResult.done(new FuncValue((inputs) -> {
 				if (variadicParam == null && inputs.length != params.size())
 					throw new MalException("Wrong number of args: expected "+params.size()+", got "+inputs.length);
 				if (variadicParam != null && inputs.length < params.size())
@@ -117,8 +121,8 @@ public abstract class Special {
 					}
 					newEnv.set(variadicParam, remainder);
 				}
-				return args[1].eval(newEnv);
-			});
+				return EvalResult.tailCall(args[1], newEnv);
+			}));
 		}
 	};
 	

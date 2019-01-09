@@ -8,6 +8,26 @@ import com.github.kanaka.mal.Environment;
 import com.github.kanaka.mal.MalTypeException;
 
 public abstract class Value {
+	public static class EvalResult {
+		public final Value value;
+		public final boolean isTailCall;
+		public final Environment env;
+
+		private EvalResult(Value result, boolean isTailCall, Environment env) {
+			this.value = result;
+			this.isTailCall = isTailCall;
+			this.env = env;
+		}
+		
+		public static EvalResult done(Value result) {
+			return new EvalResult(result, false, null);
+		}
+		
+		public static EvalResult tailCall(Value ast, Environment env) {
+			return new EvalResult(ast, true, env);
+		}
+	}
+
 	public abstract String prStr(boolean printReadably);
 
 	@Override
@@ -35,8 +55,21 @@ public abstract class Value {
 		throw new MalTypeException("Cannot cast "+this.toString()+" to value sequence");
 	}
 	
-	public Value eval(Environment env) {
-		return evalAst(env);
+	protected EvalResult internalEval(Environment env) {
+		return new EvalResult(evalAst(env), false, null);
+	}
+	
+	public final Value eval(Environment env) {
+		Value val = this;
+		while (true) {
+			EvalResult result = val.internalEval(env);
+			if (result.isTailCall) {
+				val = result.value;
+				env = result.env;
+			} else {
+				return result.value;
+			}
+		}
 	}
 	
 	public Value evalAst(Environment env) {
@@ -133,7 +166,11 @@ public abstract class Value {
 		return new MapValue(values);
 	}
 	
-	public static FuncValue fn(Function<Value[], Value> f) {
+	public static FuncValue tcoFn(Function<Value[], EvalResult> f) {
 		return new FuncValue(f);
+	}
+	
+	public static FuncValue fn(Function<Value[], Value> f) {
+		return new FuncValue((inputs) -> EvalResult.done(f.apply(inputs)));
 	}
 }

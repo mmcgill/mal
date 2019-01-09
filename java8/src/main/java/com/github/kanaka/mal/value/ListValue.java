@@ -34,9 +34,9 @@ public class ListValue extends ValueSequence {
 	}
 	
 	@Override
-	public Value eval(Environment env) {
+	protected EvalResult internalEval(Environment env) {
 		if (values.isEmpty()) {
-			return this;
+			return EvalResult.done(this);
 		} else  {
 			Value first = values.get(0);
 			Special special = (first instanceof SymbolValue) ? Special.get((SymbolValue)first) : null;

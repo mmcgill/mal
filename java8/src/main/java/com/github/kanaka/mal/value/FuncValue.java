@@ -3,13 +3,13 @@ package com.github.kanaka.mal.value;
 import java.util.function.Function;
 
 public class FuncValue extends Value {
-	private final Function<Value[], Value> f;
+	private final Function<Value[], EvalResult> f;
 	
-	public FuncValue(Function<Value[], Value> f) {
+	public FuncValue(Function<Value[], EvalResult> f) {
 		this.f = f;
 	}
 	
-	public Value apply(Value... inputs) {
+	public EvalResult apply(Value... inputs) {
 		return f.apply(inputs);
 	}
 	
