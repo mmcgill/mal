@@ -19,12 +19,24 @@ public class NilValue extends ValueSequence {
 	}
 	
 	@Override
+	public ListValue coerceToList() {
+		return ListValue.EMPTY;
+	}
+	
+	@Override
 	public int getSize() {
 		return 0;
 	}
 	
 	@Override
 	public Iterator<Value> iterator() {
+		return new Iterator<Value>() {
+			@Override public boolean hasNext() { return false; }
+			@Override public Value next() { return null; }
+		};
+	}
+	@Override
+	public Iterator<Value> reverseIterator() {
 		return new Iterator<Value>() {
 			@Override public boolean hasNext() { return false; }
 			@Override public Value next() { return null; }

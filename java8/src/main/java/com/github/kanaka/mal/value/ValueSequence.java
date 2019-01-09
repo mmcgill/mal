@@ -14,8 +14,17 @@ public abstract class ValueSequence extends Value implements Iterable<Value> {
 		return this;
 	}
 	
+	public abstract Iterator<Value> reverseIterator();
+	
+	public abstract ListValue coerceToList();
+	
 	public Stream<Value> stream() {
 		Spliterator<Value> si = Spliterators.spliteratorUnknownSize(iterator(), Spliterator.ORDERED);
+		return StreamSupport.stream(si, false);
+	}
+	
+	public Stream<Value> reverseStream() {
+		Spliterator<Value> si = Spliterators.spliteratorUnknownSize(reverseIterator(), Spliterator.ORDERED);
 		return StreamSupport.stream(si, false);
 	}
 	

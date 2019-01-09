@@ -41,6 +41,20 @@ public class VectorValue extends ValueSequence {
 	}
 	
 	@Override
+	public Iterator<Value> reverseIterator() {
+		return new Iterator<Value>() {
+			private int i=values.length-1;
+			@Override public boolean hasNext() { return i >= 0; }
+			@Override public Value next() { return values[i--]; }
+		};
+	}
+	
+	@Override
+	public ListValue coerceToList() {
+		return list(values);
+	}
+	
+	@Override
 	public Value evalAst(Environment env) {
 		Value[] newValues = new Value[values.length];
 		for (int i=0; i < values.length; ++i)

@@ -50,6 +50,9 @@ public class Core {
 		NS.set(symbol("deref"), fn1(Core::deref));
 		NS.set(symbol("reset!"), fn(Core::reset));
 		NS.set(symbol("swap!"), fn(Core::swap, 2, Integer.MAX_VALUE));
+		
+		NS.set(symbol("cons"), fn(Core::cons));
+		NS.set(symbol("concat"), fn(Core::concat, 0, Integer.MAX_VALUE));
 	}
 	
 	public static IntValue add(Value[] inputs) {
@@ -194,5 +197,21 @@ public class Core {
 				return result.value;
 			}
 		});
+	}
+	
+	public static Value cons(Value v, Value l) {
+		return l.castToValueSequence().coerceToList().cons(v);
+	}
+	
+	public static ListValue concat(Value... inputs) {
+		ListValue result = list();
+		for (int i=inputs.length-1; i >= 0; --i) {
+			result = inputs[i]
+					.castToValueSequence()
+					.reverseStream()
+					.map(v -> list(v))
+					.reduce(result, (r,l) -> r.cons(l.getHead()));
+		}
+		return result;
 	}
 }

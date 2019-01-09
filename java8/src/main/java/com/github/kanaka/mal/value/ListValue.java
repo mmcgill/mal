@@ -13,6 +13,19 @@ public class ListValue extends ValueSequence {
 	private final ListValue tail;
 	private final int size;
 	
+	public Value getHead() {
+		return head;
+	}
+	
+	public ListValue getTail() {
+		return tail;
+	}
+	
+	@Override
+	public ListValue coerceToList() {
+		return this;
+	}
+	
 	private ListValue(Value head, ListValue tail) {
 		this.head = head;
 		this.tail = tail;
@@ -50,6 +63,11 @@ public class ListValue extends ValueSequence {
 	@Override
 	public Iterator<Value> iterator() {
 		return new ListIterator(this);
+	}
+	
+	@Override
+	public Iterator<Value> reverseIterator() {
+		return reverse().iterator();
 	}
 	
 	@Override

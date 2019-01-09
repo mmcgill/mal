@@ -121,6 +121,41 @@ public abstract class Special {
 		}
 	};
 	
+	public static final Special QUOTE = new Special() {
+		@Override
+		public EvalResult apply(Environment env, Value[] args) {
+			return EvalResult.done(args[0]);
+		}
+	};
+	
+	private static boolean isNonEmptySequence(Value v) {
+		return (v instanceof ValueSequence && v.castToValueSequence().getSize() > 0);
+	}
+	
+	private static Value quasiquote(Value ast) {
+		if (!isNonEmptySequence(ast)) {
+			return list(symbol("quote"), ast);
+		}
+		ListValue l = ast.castToValueSequence().coerceToList();
+		Value car = l.getHead();
+		ListValue carl = isNonEmptySequence(car) ? car.castToValueSequence().coerceToList() : null;
+		Value ccar = (carl != null) ? carl.getHead() : null;
+		if (symbol("unquote").equals(l.getHead())) {
+			return l.getTail().getHead(); 
+		} else if (symbol("splice-unquote").equals(ccar)) {
+			return list(symbol("concat"), carl.getTail().getHead(), quasiquote(l.getTail()));
+		} else {
+			return list(symbol("cons"), quasiquote(l.getHead()), quasiquote(l.getTail()));
+		}
+	}
+	
+	public static final Special QUASIQUOTE = new Special() {
+		@Override
+		public EvalResult apply(Environment env, Value[] args) {
+			return EvalResult.tailCall(quasiquote(args[0]), env);
+		}
+	};
+	
 	private static final Map<SymbolValue, Special> SPECIALS = new HashMap<>();
 
 	static {
@@ -129,6 +164,8 @@ public abstract class Special {
 		SPECIALS.put(symbol("do"), DO);
 		SPECIALS.put(symbol("if"), IF);
 		SPECIALS.put(symbol("fn*"), FN);
+		SPECIALS.put(symbol("quote"), QUOTE);
+		SPECIALS.put(symbol("quasiquote"), QUASIQUOTE);
 	}
 	
 	public static Special get(SymbolValue sym) {
