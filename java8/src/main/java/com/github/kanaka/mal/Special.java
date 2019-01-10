@@ -188,6 +188,29 @@ public abstract class Special {
 		}
 	};
 	
+	public static final Special TRYCATCH = new Special() {
+		@Override
+		public EvalResult apply(Environment env, Value[] args) {
+			if (args.length == 1) {
+				return EvalResult.tailCall(args[0], env);
+			}
+			if ( args.length != 2)
+				throw new MalException("try* form expects 1 or 2 arguments, got "+args.length);
+			Value a = args[0];
+			if (!args[1].castToList().getHead().equals(symbol("catch*")))
+				throw new MalException("try* form's 2nd arg must be (catch* ...), got "+args[1].toString());
+			SymbolValue b = args[1].castToList().nth(1).castToSymbol();
+			Value c = args[1].castToList().nth(2);
+			try {
+				return EvalResult.done(a.eval(env));
+			} catch (MalException ex) {
+				Environment env2 = new Environment(env);
+				env2.set(b, ex.value);
+				return EvalResult.tailCall(c, env2);
+			}
+		}
+	};
+	
 	private static final Map<SymbolValue, Special> SPECIALS = new HashMap<>();
 
 	static {
@@ -200,6 +223,7 @@ public abstract class Special {
 		SPECIALS.put(symbol("quasiquote"), QUASIQUOTE);
 		SPECIALS.put(symbol("defmacro!"), DEFMACRO);
 		SPECIALS.put(symbol("macroexpand"), MACROEXPAND);
+		SPECIALS.put(symbol("try*"), TRYCATCH);
 	}
 	
 	public static Special get(SymbolValue sym) {

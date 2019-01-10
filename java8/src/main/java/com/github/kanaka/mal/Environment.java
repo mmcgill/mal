@@ -30,7 +30,7 @@ public class Environment {
 	public Value get(SymbolValue sym) {
 		Environment env = find(sym);
 		if (env == null)
-			throw new MalException("Symbol "+sym.toString()+" not found");
+			throw new MalException("'"+sym.toString()+"' not found");
 		return env.contents.get(sym);
 	}
 	

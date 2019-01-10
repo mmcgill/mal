@@ -74,6 +74,14 @@ public abstract class Value {
 		throw new MalTypeException("Cannot cast "+this.toString()+" to atom");
 	}
 	
+	public KeywordValue castToKeyword() {
+		throw new MalTypeException("Cannot cast "+this.toString()+" to keyword");
+	}
+	
+	public MapValue castToMap() {
+		throw new MalTypeException("Cannot cast "+this.toString()+"to map");
+	}
+	
 	protected EvalResult internalEval(Environment env) {
 		return new EvalResult(evalAst(env), false, null);
 	}

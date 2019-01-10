@@ -8,6 +8,11 @@ public class KeywordValue extends Value {
 	}
 	
 	@Override
+	public KeywordValue castToKeyword() {
+		return this;
+	}
+	
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;

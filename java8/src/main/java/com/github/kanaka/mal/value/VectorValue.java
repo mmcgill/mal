@@ -56,13 +56,6 @@ public class VectorValue extends ValueSequence {
 	}
 	
 	@Override
-	public Value nth(int n) {
-		if (values.length <= n)
-			throw new MalException("No nth element");
-		return values[n];
-	}
-	
-	@Override
 	public Value evalAst(Environment env) {
 		Value[] newValues = new Value[values.length];
 		for (int i=0; i < values.length; ++i)

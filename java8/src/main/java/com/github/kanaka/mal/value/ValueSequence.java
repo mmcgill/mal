@@ -35,7 +35,7 @@ public abstract class ValueSequence extends Value implements Iterable<Value> {
 		try {
 			return stream().skip(n).findFirst().get();
 		} catch (NoSuchElementException ex) {
-			throw new MalException("No nth element");
+			throw new MalException("nth: index "+n+" out of bounds");
 		}
 	}
 	
