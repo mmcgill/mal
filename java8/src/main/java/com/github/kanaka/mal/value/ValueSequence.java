@@ -1,10 +1,13 @@
 package com.github.kanaka.mal.value;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import com.github.kanaka.mal.MalException;
 
 public abstract class ValueSequence extends Value implements Iterable<Value> {
 	public abstract int getSize();
@@ -26,6 +29,14 @@ public abstract class ValueSequence extends Value implements Iterable<Value> {
 	public Stream<Value> reverseStream() {
 		Spliterator<Value> si = Spliterators.spliteratorUnknownSize(reverseIterator(), Spliterator.ORDERED);
 		return StreamSupport.stream(si, false);
+	}
+	
+	public Value nth(int n) {
+		try {
+			return stream().skip(n).findFirst().get();
+		} catch (NoSuchElementException ex) {
+			throw new MalException("No nth element");
+		}
 	}
 	
 	@Override

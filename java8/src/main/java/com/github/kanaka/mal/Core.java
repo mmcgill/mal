@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -53,6 +54,10 @@ public class Core {
 		
 		NS.set(symbol("cons"), fn(Core::cons));
 		NS.set(symbol("concat"), fn(Core::concat, 0, Integer.MAX_VALUE));
+		
+		NS.set(symbol("nth"), fn(Core::nth));
+		NS.set(symbol("first"), fn1(Core::first));
+		NS.set(symbol("rest"), fn1(Core::rest));
 	}
 	
 	public static IntValue add(Value[] inputs) {
@@ -213,5 +218,21 @@ public class Core {
 					.reduce(result, (r,l) -> r.cons(l.getHead()));
 		}
 		return result;
+	}
+	
+	public static Value nth(Value v, Value n) {
+		return v.castToValueSequence().nth(n.castToInt().value);
+	}
+	
+	public static Value first(Value v) {
+		Iterator<Value> iter = v.castToValueSequence().iterator();
+		return iter.hasNext() ? iter.next() : Value.NIL;
+	}
+	
+	public static Value rest(Value v) {
+		if (v == Value.NIL)
+			return ListValue.EMPTY;
+		ListValue t = v.castToValueSequence().coerceToList().getTail();
+		return t == null ? ListValue.EMPTY : t;
 	}
 }

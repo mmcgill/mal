@@ -8,6 +8,7 @@ import com.github.kanaka.mal.value.Value;
 
 public class Environment {
 	private final Map<SymbolValue,Value> contents = new HashMap<>();
+
 	private final Environment outer;
 
 	public Environment() {

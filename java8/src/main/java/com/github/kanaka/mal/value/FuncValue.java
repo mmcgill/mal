@@ -8,11 +8,13 @@ public class FuncValue extends Value {
 	private final Function<Value[], EvalResult> f;
 	private final int minArgs;
 	private final int maxArgs;
+	public boolean isMacro;
 	
 	FuncValue(Function<Value[], EvalResult> f, int minArgs, int maxArgs) {
 		this.minArgs = minArgs;
 		this.maxArgs = maxArgs;
 		this.f = f;
+		this.isMacro = false;
 	}
 	
 	public EvalResult apply(Value... inputs) {

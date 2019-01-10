@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.github.kanaka.mal.value.FuncValue;
 import com.github.kanaka.mal.value.ListValue;
 import com.github.kanaka.mal.value.SymbolValue;
 import com.github.kanaka.mal.value.Value;
@@ -156,6 +157,37 @@ public abstract class Special {
 		}
 	};
 	
+	public static final Special DEFMACRO = new Special() {
+		@Override
+		public EvalResult apply(Environment env, Value[] args) {
+			if (args.length != 2)
+				throw new MalException("Wrong number of args: expected 2, got "+args.length);
+			Value v = args[1].eval(env);
+			if (!(v instanceof FuncValue))
+				throw new MalException("Body of defmacro! must be a function; "+v.toString()+" is not a function");
+			v.castToFn().isMacro = true;
+			env.set(args[0].castToSymbol(), v);
+			return EvalResult.done(v);
+			
+		}
+	};
+	
+	public static Value macroexpand(Environment env, Value ast) {
+		while (ast.isMacroCall(env)) {
+			FuncValue m = env.get(ast.castToList().getHead().castToSymbol()).castToFn();
+			EvalResult res = m.apply(ast.castToList().getTail().toArray());
+			ast = res.runToCompletion();
+		}
+		return ast;
+	}
+	
+	public static final Special MACROEXPAND = new Special() {
+		@Override
+		public EvalResult apply(Environment env, Value[] args) {
+			return EvalResult.done(macroexpand(env, args[0]));
+		}
+	};
+	
 	private static final Map<SymbolValue, Special> SPECIALS = new HashMap<>();
 
 	static {
@@ -166,6 +198,8 @@ public abstract class Special {
 		SPECIALS.put(symbol("fn*"), FN);
 		SPECIALS.put(symbol("quote"), QUOTE);
 		SPECIALS.put(symbol("quasiquote"), QUASIQUOTE);
+		SPECIALS.put(symbol("defmacro!"), DEFMACRO);
+		SPECIALS.put(symbol("macroexpand"), MACROEXPAND);
 	}
 	
 	public static Special get(SymbolValue sym) {

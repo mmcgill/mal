@@ -101,15 +101,32 @@ public class ListValue extends ValueSequence {
 	}
 	
 	@Override
+	public boolean isMacroCall(Environment env) {
+		if (!(head instanceof SymbolValue))
+			return false;
+		env = env.find(head.castToSymbol());
+		if (env == null)
+			return false;
+		Value hv = env.get(head.castToSymbol());
+		if (!(hv instanceof FuncValue))
+			return false;
+		return hv.castToFn().isMacro;
+	}
+	
+	@Override
 	protected EvalResult internalEval(Environment env) {
 		if (head == null) {
 			return EvalResult.done(this);
 		} else  {
-			Special special = (head instanceof SymbolValue) ? Special.get((SymbolValue)head) : null;
+			Value v = Special.macroexpand(env, this);
+			if (!(v instanceof ListValue))
+				return EvalResult.done(v.evalAst(env));
+			ListValue ast = v.castToList();
+			Special special = (ast.getHead() instanceof SymbolValue) ? Special.get((SymbolValue)ast.getHead()) : null;
 			if (special != null) {
-				return special.apply(env, tail.toArray());
+				return special.apply(env, ast.getTail().toArray());
 			} else {
-				ListValue l = evalAst(env);
+				ListValue l = ast.evalAst(env);
 				FuncValue f = l.head.castToFn();
 				return f.apply(l.tail.toArray());
 			}

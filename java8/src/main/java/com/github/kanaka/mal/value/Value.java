@@ -10,9 +10,9 @@ import com.github.kanaka.mal.MalTypeException;
 
 public abstract class Value {
 	public static class EvalResult {
-		public final Value value;
-		public final boolean isTailCall;
-		public final Environment env;
+		public Value value;
+		public boolean isTailCall;
+		public Environment env;
 
 		private EvalResult(Value result, boolean isTailCall, Environment env) {
 			this.value = result;
@@ -26,6 +26,16 @@ public abstract class Value {
 		
 		public static EvalResult tailCall(Value ast, Environment env) {
 			return new EvalResult(ast, true, env);
+		}
+		
+		public Value runToCompletion() {
+			while (isTailCall) {
+				EvalResult res = value.internalEval(env);
+				value = res.value;
+				isTailCall = res.isTailCall;
+				env = res.env;
+			}
+			return value;
 		}
 	}
 
@@ -68,17 +78,12 @@ public abstract class Value {
 		return new EvalResult(evalAst(env), false, null);
 	}
 	
+	public boolean isMacroCall(Environment env) {
+		return false;
+	}
+	
 	public final Value eval(Environment env) {
-		Value val = this;
-		while (true) {
-			EvalResult result = val.internalEval(env);
-			if (result.isTailCall) {
-				val = result.value;
-				env = result.env;
-			} else {
-				return result.value;
-			}
-		}
+		return internalEval(env).runToCompletion();
 	}
 	
 	public Value evalAst(Environment env) {

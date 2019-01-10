@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.kanaka.mal.Environment;
+import com.github.kanaka.mal.MalException;
 
 public class VectorValue extends ValueSequence {
 	private final Value[] values;
@@ -52,6 +53,13 @@ public class VectorValue extends ValueSequence {
 	@Override
 	public ListValue coerceToList() {
 		return list(values);
+	}
+	
+	@Override
+	public Value nth(int n) {
+		if (values.length <= n)
+			throw new MalException("No nth element");
+		return values[n];
 	}
 	
 	@Override
