@@ -3,9 +3,9 @@ package com.github.kanaka.mal.value;
 import com.github.kanaka.mal.MalException;
 
 public class IntValue extends Value {
-	public final int value;
+	public final long value;
 	
-	IntValue(int value) {
+	IntValue(long value) {
 		this.value = value;
 	}
 	
@@ -37,7 +37,7 @@ public class IntValue extends Value {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + value;
+		result = prime * result + Long.hashCode(value);
 		return result;
 	}
 
@@ -57,6 +57,6 @@ public class IntValue extends Value {
 	
 	@Override
 	public String prStr(boolean printReadably) {
-		return Integer.toString(value);
+		return Long.toString(value);
 	}
 }

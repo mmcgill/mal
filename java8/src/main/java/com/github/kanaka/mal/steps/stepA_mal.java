@@ -16,9 +16,9 @@ import com.github.kanaka.mal.value.Value;
 
 import static com.github.kanaka.mal.value.Value.*;
 
-public class step8_macros {
+public class stepA_mal {
 
-	static void rep(Environment env, String inputLine, Consumer<Value> onResult, BiConsumer<Value,Exception> onError) {
+	static void rep(Environment env, String inputLine, Consumer<Value> onResult, BiConsumer<Value,MalException> onError) {
 		try {
 			Reader reader = new Reader(inputLine);
 			for (Value form = reader.readForm(); form != null; form = reader.readForm()) {
@@ -37,17 +37,31 @@ public class step8_macros {
 	static void rep(Environment env, String inputLine) {
 		rep(env, inputLine, v -> {}, (f,ex) -> {});
 	}
+	
+	private static void onResult(Value result) {
+		System.out.println(result.prStr(true));
+		System.out.flush();
+	}
+	
+	private static void onError(Value form, MalException ex) {
+		System.err.println("Exception: "+ex.value.prStr(true));
+		System.err.flush();
+	}
 
 	public static void main(String[] args) {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		try {
+			Core.NS.stdin = in;
+			Core.NS.stdout = System.out;
 			Environment repl_env = new Environment(Core.NS);
+			repl_env.set(symbol("*host-language*"), string("java8"));
 			repl_env.set(symbol("eval"), fn1((input) -> {
 				return input.eval(repl_env);
 			}));
 			rep(repl_env, "(def! not (fn* [a] (if a false true)))");
 			rep(repl_env, "(def! load-file (fn* [f] (eval (read-string (str \"(do \" (slurp f) \")\")))))");
 			rep(repl_env, "(load-file \"src/main/resources/step8.mal\")");
+			rep(repl_env, "(load-file \"src/main/resources/stepA.mal\")");
 			String targetFile = (args.length > 0) ? args[0] : null;
 			List<Value> targetArgs = new LinkedList<Value>();
 			for (int i=1; i < args.length; ++i) {
@@ -58,13 +72,11 @@ public class step8_macros {
 			if (targetFile != null) {
 				rep(repl_env, "(load-file \""+Value.escape(targetFile)+"\")",
 						(v) -> {},
-						(f, ex) -> {
-							System.err.println(ex.getMessage());
-							System.err.flush();
-						});
+						stepA_mal::onError);
 				System.exit(0);
 			}
 
+			rep(repl_env, "(println (str \"Mal [\" *host-language* \"]\"))");
 			while (true) {
 				System.out.print("user> ");
 				System.out.flush();
@@ -73,15 +85,7 @@ public class step8_macros {
 					System.out.println("\nBye!");
 					break;
 				}
-				rep(repl_env, inputLine,
-						v -> {
-							System.out.println(v.prStr(true));
-							System.out.flush();
-						},
-						(f,ex) -> {
-							System.err.println(ex.getMessage());
-							System.err.flush();
-						});
+				rep(repl_env, inputLine, stepA_mal::onResult, stepA_mal::onError);
 				System.out.flush();
 			}
 		} catch (IOException ex) {

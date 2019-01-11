@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.github.kanaka.mal.Environment;
-import com.github.kanaka.mal.MalException;
 
-public class VectorValue extends ValueSequence {
+public class VectorValue extends ValueSequence implements MetaHolder<VectorValue> {
 	private final Value[] values;
 	
-	private VectorValue(Value[] values, boolean copy) {
+	private VectorValue(Value[] values, boolean copy, Value meta) {
+		super(meta);
 		if (copy) {
 			this.values = Arrays.copyOf(values, values.length);
 		} else {
@@ -20,11 +20,16 @@ public class VectorValue extends ValueSequence {
 	}
 
 	VectorValue(Value... values) {
-		this(values, true);
+		this(values, true, Value.NIL);
 	}
 	
 	VectorValue(List<Value> values) {
-		this(values.toArray(new Value[values.size()]), false);
+		this(values.toArray(new Value[values.size()]), false, Value.NIL);
+	}
+	
+	@Override
+	public VectorValue withMeta(Value meta) {
+		return new VectorValue(values, false, meta);
 	}
 	
 	@Override
@@ -56,11 +61,23 @@ public class VectorValue extends ValueSequence {
 	}
 	
 	@Override
+	public MetaHolder<VectorValue> castToMetaHolder() {
+		return this;
+	}
+	
+	@Override
+	public ValueSequence conj(Value v) {
+		Value[] vs = Arrays.copyOf(values, values.length+1);
+		vs[vs.length-1] = v;
+		return new VectorValue(vs);
+	}
+	
+	@Override
 	public Value evalAst(Environment env) {
 		Value[] newValues = new Value[values.length];
 		for (int i=0; i < values.length; ++i)
 			newValues[i] = values[i].eval(env);
-		return new VectorValue(newValues, false);
+		return new VectorValue(newValues, false, meta());
 	}
 	
 	@Override

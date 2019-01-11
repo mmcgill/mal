@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 import com.github.kanaka.mal.Environment;
 import com.github.kanaka.mal.Special;
 
-public class ListValue extends ValueSequence {
-	public static final ListValue EMPTY = new ListValue(null, null);
+public class ListValue extends ValueSequence implements MetaHolder<ListValue> {
+	public static final ListValue EMPTY = new ListValue(null, null, Value.NIL);
 
 	private final Value head;
 	private final ListValue tail;
@@ -26,7 +26,8 @@ public class ListValue extends ValueSequence {
 		return this;
 	}
 	
-	private ListValue(Value head, ListValue tail) {
+	private ListValue(Value head, ListValue tail, Value meta) {
+		super(meta);
 		this.head = head;
 		this.tail = tail;
 		if (head == null) {
@@ -34,6 +35,11 @@ public class ListValue extends ValueSequence {
 		} else {
 			this.size = 1+tail.size;
 		}
+	}
+	
+	@Override
+	public ListValue withMeta(Value meta) {
+		return new ListValue(head, tail, meta);
 	}
 	
 	@Override
@@ -75,8 +81,18 @@ public class ListValue extends ValueSequence {
 		return this;
 	}
 	
+	@Override
+	public MetaHolder<ListValue> castToMetaHolder() {
+		return this;
+	}
+	
+	@Override
+	public ValueSequence conj(Value v) {
+		return cons(v);
+	}
+	
 	public ListValue cons(Value v) {
-		return new ListValue(v, this);
+		return new ListValue(v, this, meta());
 	}
 	
 	public Value[] toArray() {
@@ -135,7 +151,7 @@ public class ListValue extends ValueSequence {
 	
 	@Override
 	public ListValue evalAst(Environment env) {
-		return Value.list(stream().map(v -> v.eval(env)).iterator());
+		return Value.list(stream().map(v -> v.eval(env)).iterator()).withMeta(meta());
 	}
 
 	@Override

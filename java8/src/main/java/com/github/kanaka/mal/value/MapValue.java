@@ -12,15 +12,18 @@ import java.util.stream.Stream;
 import com.github.kanaka.mal.Environment;
 import com.github.kanaka.mal.MalException;
 
-public class MapValue extends Value {
+public class MapValue extends Value implements MetaHolder<MapValue> {
 	private final Map<Value,Value> values;
+	private final Value meta;
 	
-	private MapValue(Map<Value,Value> values) {
+	private MapValue(Map<Value,Value> values, Value meta) {
 		this.values = values;
+		this.meta = meta;
 	}
 	
 	MapValue(Value... pairs) {
 		values = new HashMap<>();
+		meta = Value.NIL;
 		if (pairs.length % 2 == 1) {
 			throw new MalException("hash-map must have even number of elements");
 		}
@@ -31,6 +34,7 @@ public class MapValue extends Value {
 	
 	MapValue(Iterator<Value> iter) {
 		values = new HashMap<>();
+		meta = Value.NIL;
 		while (iter.hasNext()) {
 			Value k = iter.next();
 			if (!iter.hasNext()) {
@@ -49,7 +53,7 @@ public class MapValue extends Value {
 		for (int i=offset; i < vs.length; i += 2) {
 			newMap.put(vs[i], vs[i+1]);
 		}
-		return new MapValue(newMap);
+		return new MapValue(newMap, meta);
 	}
 	
 	public MapValue dissoc(Value... ks) { return dissoc(ks, 0); }
@@ -63,7 +67,7 @@ public class MapValue extends Value {
 				newMap.remove(ks[i]);
 			}
 		}
-		return newMap == null ? this : new MapValue(newMap);
+		return newMap == null ? this : new MapValue(newMap, meta);
 	}
 	
 	public Value get(Value k) { return values.getOrDefault(k, Value.NIL); }
@@ -80,12 +84,21 @@ public class MapValue extends Value {
 	}
 	
 	@Override
+	public Value meta() { return meta; }
+	
+	@Override
+	public MapValue withMeta(Value meta) { return new MapValue(values, meta); }
+	
+	@Override
+	public MetaHolder<MapValue> castToMetaHolder() { return this; }
+
+	@Override
 	public Value evalAst(Environment env) {
 		Map<Value,Value> newValues = new HashMap<>(values.size());
 		for (Entry<Value, Value> e : values.entrySet()) {
 			newValues.put(e.getKey().eval(env), e.getValue().eval(env));
 		}
-		return new MapValue(newValues);
+		return new MapValue(newValues, meta);
 	}
 
 	@Override

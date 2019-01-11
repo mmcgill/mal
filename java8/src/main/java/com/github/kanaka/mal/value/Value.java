@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.github.kanaka.mal.Environment;
 import com.github.kanaka.mal.MalTypeException;
@@ -82,6 +83,10 @@ public abstract class Value {
 		throw new MalTypeException("Cannot cast "+this.toString()+"to map");
 	}
 	
+	public MetaHolder<? extends Value> castToMetaHolder() {
+		throw new MalTypeException("Cannot cast "+this.toString()+"to metadata holder");
+	}
+	
 	protected EvalResult internalEval(Environment env) {
 		return new EvalResult(evalAst(env), false, null);
 	}
@@ -98,7 +103,7 @@ public abstract class Value {
 		return this;
 	}
 
-	public static IntValue integer(int v) {
+	public static IntValue integer(long v) {
 		return new IntValue(v);
 	}
 	
@@ -204,6 +209,10 @@ public abstract class Value {
 	
 	public static FuncValue fn(BiFunction<Value,Value,Value> f) {
 		return new FuncValue((inputs) -> EvalResult.done(f.apply(inputs[0], inputs[1])), 2, 2);
+	}
+	
+	public static FuncValue fn(Supplier<Value> f) {
+		return new FuncValue((inputs) -> EvalResult.done(f.get()), 0, 0);
 	}
 	
 	public static AtomValue atom(Value innerValue) {

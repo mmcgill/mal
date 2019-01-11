@@ -86,6 +86,17 @@ public class Core {
 		NS.set(symbol("keys"), fn1(Core::keys));
 		NS.set(symbol("vals"), fn1(Core::vals));
 		NS.set(symbol("sequential?"), fn1(Core::isSequential));
+		
+		NS.set(symbol("readline"), fn1(Core::readline));
+		NS.set(symbol("meta"), fn1(Core::meta));
+		NS.set(symbol("with-meta"), fn(Core::withMeta));
+		NS.set(symbol("time-ms"), fn(Core::timeMs));
+		NS.set(symbol("conj"), fn(Core::conj, 2, Integer.MAX_VALUE));
+		NS.set(symbol("string?"), fn1(Core::isString));
+		NS.set(symbol("number?"), fn1(Core::isNumber));
+		NS.set(symbol("fn?"), fn1(Core::isFn));
+		NS.set(symbol("macro?"), fn1(Core::isMacro));
+		NS.set(symbol("seq"), fn1(Core::seq));
 	}
 	
 	public static IntValue add(Value[] inputs) {
@@ -236,7 +247,7 @@ public class Core {
 			result = inputs[i]
 					.castToValueSequence()
 					.reverseStream()
-					.map(v -> list(v))
+					.map(Value::list)
 					.reduce(result, (r,l) -> r.cons(l.getHead()));
 		}
 		return result;
@@ -323,4 +334,53 @@ public class Core {
 	public static ListValue vals(Value m) { return list(m.castToMap().vals().iterator()); }
 	
 	public static BoolValue isSequential(Value v) { return bool(v != Value.NIL && v instanceof ValueSequence); }
+	
+	public static Value readline(Value prompt) {
+		try {
+			NS.stdout.print(prompt.castToString().value);
+			NS.stdout.flush();
+			String s = NS.stdin.readLine();
+			return s == null ? Value.NIL : string(s);
+		} catch (IOException ex) {
+			throw new MalException("IO error", ex);
+		}
+	}
+	
+	public static Value meta(Value v) { return v.castToMetaHolder().meta(); }
+	
+	public static Value withMeta(Value v, Value meta) {
+		return v.castToMetaHolder().withMeta(meta);
+	}
+	
+	public static IntValue timeMs() { return integer(System.nanoTime()/1000000); }
+	
+	public static ValueSequence conj(Value[] inputs) {
+		ValueSequence vs = inputs[0].castToValueSequence();
+		for (int i = 1; i < inputs.length; ++i)
+			vs = vs.conj(inputs[i]);
+		return vs;
+	}
+	
+	public static BoolValue isString(Value v) { return bool(v instanceof StringValue); }
+	
+	public static BoolValue isNumber(Value v) { return bool(v instanceof IntValue); }
+	
+	public static BoolValue isFn(Value v) { return bool(v instanceof FuncValue && !v.castToFn().isMacro); }
+	
+	public static BoolValue isMacro(Value v) { return bool(v instanceof FuncValue && v.castToFn().isMacro); }
+	
+	public static Value seq(Value v) {
+		if (v == Value.NIL) return Value.NIL; // is this right?
+		if (v instanceof StringValue) {
+			StringValue s = v.castToString();
+			if (s.value.equals("")) return Value.NIL;
+			Value[] vs = new Value[s.value.length()];
+			for (int i=0; i < vs.length; ++i) {
+				vs[i] = string(s.value.substring(i, i+1));
+			}
+			return list(vs);
+		}
+		if (v.castToValueSequence().getSize() == 0) return Value.NIL;
+		return v.castToValueSequence().coerceToList();
+	}
 }

@@ -57,7 +57,7 @@ public class step9_try {
 			}));
 			rep(repl_env, "(def! not (fn* [a] (if a false true)))");
 			rep(repl_env, "(def! load-file (fn* [f] (eval (read-string (str \"(do \" (slurp f) \")\")))))");
-			rep(repl_env, "(load-file \"step8.mal\")");
+			rep(repl_env, "(load-file \"src/main/resources/step8.mal\")");
 			String targetFile = (args.length > 0) ? args[0] : null;
 			List<Value> targetArgs = new LinkedList<Value>();
 			for (int i=1; i < args.length; ++i) {

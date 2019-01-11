@@ -1,5 +1,7 @@
 package com.github.kanaka.mal;
 
+import java.io.BufferedReader;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,6 +12,9 @@ public class Environment {
 	private final Map<SymbolValue,Value> contents = new HashMap<>();
 
 	private final Environment outer;
+	
+	public BufferedReader stdin;
+	public PrintStream stdout;
 
 	public Environment() {
 		outer = null;
@@ -17,6 +22,8 @@ public class Environment {
 	
 	public Environment(Environment outer) {
 		this.outer = outer;
+		this.stdin = outer.stdin;
+		this.stdout = outer.stdout;
 	}
 	
 	public Environment find(SymbolValue sym) {

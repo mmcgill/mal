@@ -6,6 +6,7 @@ public class NilValue extends ValueSequence {
 	public static final NilValue NIL = new NilValue();
 
 	private NilValue() {
+		super(null);
 	}
 	
 	@Override
@@ -21,6 +22,11 @@ public class NilValue extends ValueSequence {
 	@Override
 	public ListValue coerceToList() {
 		return ListValue.EMPTY;
+	}
+	
+	@Override
+	public ValueSequence conj(Value v) {
+		return list(v);
 	}
 	
 	@Override

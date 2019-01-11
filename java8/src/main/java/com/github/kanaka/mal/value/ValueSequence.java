@@ -10,7 +10,14 @@ import java.util.stream.StreamSupport;
 import com.github.kanaka.mal.MalException;
 
 public abstract class ValueSequence extends Value implements Iterable<Value> {
+	private final Value meta;
+
+	protected ValueSequence(Value meta) {
+		this.meta = meta;
+	}
 	public abstract int getSize();
+	
+	public Value meta() { return meta; }
 	
 	@Override
 	public ValueSequence castToValueSequence() {
@@ -20,6 +27,8 @@ public abstract class ValueSequence extends Value implements Iterable<Value> {
 	public abstract Iterator<Value> reverseIterator();
 	
 	public abstract ListValue coerceToList();
+	
+	public abstract ValueSequence conj(Value v);
 	
 	public Stream<Value> stream() {
 		Spliterator<Value> si = Spliterators.spliteratorUnknownSize(iterator(), Spliterator.ORDERED);
@@ -31,7 +40,7 @@ public abstract class ValueSequence extends Value implements Iterable<Value> {
 		return StreamSupport.stream(si, false);
 	}
 	
-	public Value nth(int n) {
+	public Value nth(long n) {
 		try {
 			return stream().skip(n).findFirst().get();
 		} catch (NoSuchElementException ex) {
