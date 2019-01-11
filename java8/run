@@ -6,4 +6,5 @@ if [ "$#" -gt 0 ]; then
         args="$args '$a'"
     done
 fi
+cd ../java8
 exec mvn -quiet -e exec:java -Dexec.mainClass="com.github.kanaka.mal.steps.${STEP:-stepA_mal}" ${args:+"$args"}
