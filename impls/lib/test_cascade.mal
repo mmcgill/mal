@@ -13,7 +13,7 @@
 ;; `(if x1 x1 (if x2 x2 (.. (if xn xn x))))`
 ;; except that each argument is evaluated at most once.
 ;; Without arguments, returns `nil`.
-(defmacro! or (fn* [& xs]
+(defmacro! or ^{:inline? true} (fn* [& xs]
   (if (< (count xs) 2)
     (first xs)
     (let* [r (gensym)]
@@ -57,7 +57,7 @@
 ;;           rn) ..)
 ;;       r1))
 ;; Without arguments, returns `true`.
-(defmacro! and
+(defmacro! and ^{:inline? true}
   (fn* (& xs)
     ;; Arguments and the result are interpreted as boolean values.
     (cond (empty? xs)      true
