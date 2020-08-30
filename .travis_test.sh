@@ -37,6 +37,7 @@ fi
 
 raw_mode_var=${MAL_IMPL:-${IMPL}}_MODE
 mode_var=${raw_mode_var/./__}
+mode_var=${mode_var/-/__}
 mode_val=${!mode_var}
 
 MAKE="make ${mode_val:+${mode_var}=${mode_val}}"
