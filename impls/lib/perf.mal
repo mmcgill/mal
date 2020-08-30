@@ -35,7 +35,16 @@
       ;; max-secs : number (seconds)
       ;; return   : number (iterations)
       (do
-        ;; Warm it up first
-        (run-fn-for* fn 1000 0 0)
         ;; Now do the test
         (run-fn-for* fn (* 1000 max-secs) 0 0)))))
+
+(def! benchmark* (fn* [f n results]
+  (if (< 0 n)
+    (let* [start-ms (time-ms)
+           _ (f)
+           end-ms (time-ms)]
+      (benchmark* f (- n 1) (conj results (- end-ms start-ms))))
+    results)))
+
+(defmacro! benchmark (fn* [expr n]
+  `(benchmark* (fn* [] ~expr) ~n [])))
